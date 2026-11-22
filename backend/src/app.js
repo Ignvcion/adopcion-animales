@@ -18,6 +18,7 @@ app.get('/api/salud', (req, res) => {
 
 // Rutas de cada módulo
 // (se agregan aquí a medida que cada integrante sube su parte)
+app.use('/api/auth', require('./routes/auth.routes'));
 
 // Ruta inexistente
 app.use('/api', (req, res) => {
