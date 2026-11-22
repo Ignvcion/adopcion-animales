@@ -92,4 +92,26 @@ async function login(req, res, next) {
   }
 }
 
-module.exports = { login };
+/**
+ * GET /api/auth/yo
+ * Devuelve el usuario de la sesión actual. El frontend lo usa al recargar
+ * la página para comprobar que el token guardado sigue siendo válido y que
+ * la cuenta no fue bloqueada mientras tanto.
+ */
+async function usuarioActual(req, res, next) {
+  try {
+    const [filas] = await pool.execute(
+      'SELECT usuario_id, nombre, email, rol, estado FROM usuario WHERE usuario_id = ? LIMIT 1',
+      [req.usuario.id]
+    );
+    const usuario = filas[0];
+    if (!usuario || usuario.estado === 'bloqueado') {
+      return res.status(401).json({ error: 'Sesión no válida. Inicia sesión de nuevo.' });
+    }
+    return res.json({ usuario: datosPublicos(usuario) });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+module.exports = { login, usuarioActual };
