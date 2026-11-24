@@ -1,9 +1,16 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 // Estructura común de todas las páginas: barra superior, contenido y pie
 export default function Layout() {
-  const { usuario } = useAuth();
+  const { usuario, cerrarSesion } = useAuth();
+  const navegar = useNavigate();
+
+  // CU03 — Cerrar sesión y volver al inicio
+  function salir() {
+    cerrarSesion();
+    navegar('/', { replace: true });
+  }
 
   return (
     <div className="app">
@@ -15,9 +22,17 @@ export default function Layout() {
         <nav className="menu">
           <NavLink to="/" end>Inicio</NavLink>
           {usuario ? (
-            <NavLink to="/panel">{usuario.nombre}</NavLink>
+            <>
+              <NavLink to="/panel">{usuario.nombre}</NavLink>
+              <button type="button" className="boton-texto" onClick={salir}>
+                Cerrar sesión
+              </button>
+            </>
           ) : (
-            <NavLink to="/login" className="boton boton-chico">Iniciar sesión</NavLink>
+            <>
+              <NavLink to="/registro">Crear cuenta</NavLink>
+              <NavLink to="/login" className="boton boton-chico">Iniciar sesión</NavLink>
+            </>
           )}
         </nav>
       </header>

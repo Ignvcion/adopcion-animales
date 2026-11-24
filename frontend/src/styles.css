@@ -46,6 +46,15 @@ button, input, select, textarea { font: inherit; }
 .menu { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .menu a { color: var(--color-suave); text-decoration: none; font-weight: 500; }
 .menu a.active, .menu a:hover { color: var(--color-primario); }
+.boton-texto {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--color-suave);
+  font-weight: 500;
+  cursor: pointer;
+}
+.boton-texto:hover { color: var(--color-error); }
 
 /* Contenido */
 .contenido { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
