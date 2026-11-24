@@ -1,0 +1,80 @@
+.tarjeta-animal {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.tarjeta-animal:hover {
+  transform: translateY(-4px);
+}
+
+.tarjeta-animal__imagen-contenedor {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background-color: #f1f5f9;
+}
+
+.tarjeta-animal__imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tarjeta-animal__etiqueta {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #16a34a;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.tarjeta-animal__cuerpo {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tarjeta-animal__titulo {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1e293b;
+}
+
+.tarjeta-animal__meta {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.tarjeta-animal__comuna {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.tarjeta-animal__boton {
+  margin-top: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tarjeta-animal__boton:hover {
+  background-color: #1d4ed8;
+}
