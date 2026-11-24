@@ -60,12 +60,25 @@ export function AuthProvider({ children }) {
     return usuario;
   }, []);
 
+  // CU01 — Registrarse: crea la cuenta y deja la sesión iniciada
+  const registrarse = useCallback(async (datos) => {
+    const { token, usuario } = await pedir('/auth/registro', {
+      metodo: 'POST',
+      cuerpo: datos,
+    });
+    const nueva = { token, usuario };
+    guardarSesion(nueva);
+    setSesion(nueva);
+    return usuario;
+  }, []);
+
   const valor = useMemo(() => ({
     usuario: sesion?.usuario ?? null,
     token: sesion?.token ?? null,
     verificando,
     iniciarSesion,
-  }), [sesion, verificando, iniciarSesion]);
+    registrarse,
+  }), [sesion, verificando, iniciarSesion, registrarse]);
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }
