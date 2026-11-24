@@ -109,7 +109,7 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
             dentro de 48 a 72 horas hábiles.
           </p>
 
-          <div className="solicitud-confirmacion__resumen">
+          <dl className="solicitud-confirmacion__resumen">
             <dt>Código de seguimiento</dt>
             <dd><strong>{codigoSolicitud}</strong></dd>
 
@@ -121,7 +121,7 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
 
             <dt>Estado inicial</dt>
             <dd style={{ color: 'var(--color-primario)', fontWeight: 600 }}>Pendiente de revisión</dd>
-          </div>
+          </dl>
 
           <div className="solicitud-acciones" style={{ justifyContent: 'center' }}>
             <button

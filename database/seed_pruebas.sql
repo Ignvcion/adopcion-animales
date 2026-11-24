@@ -2,10 +2,12 @@
 --  Adopción de Animales — Datos de prueba (Seed)
 --  Módulo Adopción y Seguimiento (CU21–CU30)
 --
+--  NOTA: Este script se ejecuta solo con la base recién creada
+--  porque usa IDs fijos.
+--
 --  Contenido:
 --  - 3 cuentas de usuario con rol 'fundacion'
 --  - 3 fundaciones con estado 'aprobada'
---  - Tabla 'animal' (si no existe aún en schema.sql)
 --  - 15 animales variados (perros y gatos de distintas comunas y tamaños)
 --
 --  Uso:
@@ -15,31 +17,7 @@
 USE adopcion_animales;
 
 -- ---------------------------------------------------------------------
---  1. Tabla 'animal'
---  Se crea condicionalmente para permitir la inserción segura de los
---  datos de prueba sin alterar database/schema.sql.
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS animal (
-  animal_id      INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-  fundacion_id   INT UNSIGNED  NOT NULL,
-  nombre         VARCHAR(100)  NOT NULL,
-  especie        VARCHAR(50)   NOT NULL,
-  tamano         VARCHAR(50)   NOT NULL,
-  edad           VARCHAR(50)   NOT NULL,
-  sexo           VARCHAR(20)   NULL,
-  descripcion    TEXT          NULL,
-  comuna         VARCHAR(80)   NOT NULL,
-  estado         VARCHAR(50)   NOT NULL DEFAULT 'disponible',
-  foto_url       VARCHAR(255)  NULL,
-  creado_en      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (animal_id),
-  CONSTRAINT fk_animal_fundacion
-    FOREIGN KEY (fundacion_id) REFERENCES fundacion (fundacion_id)
-    ON DELETE CASCADE
-) ENGINE = InnoDB;
-
--- ---------------------------------------------------------------------
---  2. Usuarios de fundaciones
+--  1. Usuarios de fundaciones
 --  Contraseña para todas las fundaciones de prueba: Fundacion123!
 --  Hash bcrypt: $2b$10$2qyujZSdJTWZaLPAr4D2wOj/K/PU9C8ctg6tmEsVIZoehctNBZm6G
 -- ---------------------------------------------------------------------
@@ -57,13 +35,13 @@ ON DUPLICATE KEY UPDATE
   comuna = VALUES(comuna);
 
 -- ---------------------------------------------------------------------
---  3. Fundaciones aprobadas
+--  2. Fundaciones aprobadas
 -- ---------------------------------------------------------------------
 INSERT INTO fundacion (fundacion_id, usuario_id, nombre, rut, descripcion, comuna, telefono, sitio_web, estado, motivo_rechazo)
 VALUES
-  (1, 2, 'Refugio Esperanza Animal', '65.123.456-7', 'Rescate, rehabilitación y adopción responsable en la zona sur de Santiago.', 'Pedro Aguirre Cerda', '+56911223344', 'https://esperanzaanimal.cl', 'aprobada', NULL),
-  (2, 3, 'Fundación Garras y Huellas', '65.987.654-3', 'Organización dedicada al rescate canino y felino con foco en esterilización y tenencia responsable.', 'Santiago', '+56922334455', 'https://garrasyhuellas.org', 'aprobada', NULL),
-  (3, 4, 'Corporación Protección Callejeros', '65.456.789-0', 'Comunidad de rescate y adopción de animales vulnerables en la Región Metropolitana.', 'Ñuñoa', '+56933445566', 'https://callejeroschile.cl', 'aprobada', NULL)
+  (1, 2, 'Refugio Esperanza Animal', '65.123.456-5', 'Rescate, rehabilitación y adopción responsable en la zona sur de Santiago.', 'Pedro Aguirre Cerda', '+56911223344', 'https://esperanzaanimal.cl', 'aprobada', NULL),
+  (2, 3, 'Fundación Garras y Huellas', '65.987.654-K', 'Organización dedicada al rescate canino y felino con foco en esterilización y tenencia responsable.', 'Santiago', '+56922334455', 'https://garrasyhuellas.org', 'aprobada', NULL),
+  (3, 4, 'Corporación Protección Callejeros', '65.456.789-1', 'Comunidad de rescate y adopción de animales vulnerables en la Región Metropolitana.', 'Ñuñoa', '+56933445566', 'https://callejeroschile.cl', 'aprobada', NULL)
 ON DUPLICATE KEY UPDATE
   nombre = VALUES(nombre),
   rut = VALUES(rut),
@@ -74,7 +52,7 @@ ON DUPLICATE KEY UPDATE
   estado = VALUES(estado);
 
 -- ---------------------------------------------------------------------
---  4. 15 Animales variados para pruebas
+--  3. 15 Animales variados para pruebas
 -- ---------------------------------------------------------------------
 INSERT INTO animal (animal_id, fundacion_id, nombre, especie, tamano, edad, sexo, descripcion, comuna, estado, foto_url)
 VALUES
@@ -89,7 +67,7 @@ VALUES
   (6, 2, 'Luna', 'Perro', 'Pequeño', '2 años', 'Hembra', 'Perrita mestiza faldera, muy dulce y de tamaño pequeño. Se adapta perfecto a departamentos.', 'Santiago', 'disponible', NULL),
   (7, 2, 'Rocky', 'Perro', 'Grande', '3 años', 'Macho', 'Perro noble y obediente, le gusta salir a caminar y correr en parques. Sabe pasear con correa.', 'Santiago', 'disponible', NULL),
   (8, 2, 'Misi', 'Gato', 'Pequeño', '8 meses', 'Hembra', 'Gatita tricolor juguetona, adora los juguetes con plumas y los rascadores.', 'Santiago', 'disponible', NULL),
-  (9, 2, 'Canela', 'Perro', 'Mediano', '1 año 4 meses', 'Hembra', 'Perrita rescued de la calle, muy agradecida y regalona. Muy buena con niños.', 'Providencia', 'disponible', NULL),
+  (9, 2, 'Canela', 'Perro', 'Mediano', '1 año 4 meses', 'Hembra', 'Perrita rescatada de la calle, muy agradecida y regalona. Muy buena con niños.', 'Providencia', 'disponible', NULL),
   (10, 2, 'Simón', 'Gato', 'Grande', '4 años', 'Macho', 'Gato atigrado corpulento pero muy dócil. Duerme la mayor parte de la tarde y pide cariño suavemente.', 'Providencia', 'disponible', NULL),
 
   -- Corporación Protección Callejeros (Ñuñoa / La Florida / Las Condes)
