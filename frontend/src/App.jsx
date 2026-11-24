@@ -5,6 +5,7 @@ import FormularioSolicitud from './components/FormularioSolicitud.jsx';
 import Inicio from './pages/Inicio.jsx';
 import Login from './pages/Login.jsx';
 import Registro from './pages/Registro.jsx';
+import RecuperarContrasena from './pages/RecuperarContrasena.jsx';
 import Panel from './pages/Panel.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
 
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/" element={<Inicio />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
+        <Route path="/recuperar" element={<RecuperarContrasena />} />
         <Route path="/solicitud-demo" element={<FormularioSolicitud />} />
 
         {/* Requieren sesión */}

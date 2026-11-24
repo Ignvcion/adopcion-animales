@@ -115,6 +115,16 @@ button, input, select, textarea { font: inherit; }
 .formulario input[aria-invalid='true'] { border-color: var(--color-error); }
 .error-campo { display: block; margin-top: 0.3rem; color: var(--color-error); font-size: 0.85rem; }
 
+.alerta-info {
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  background: #eaf6ef;
+  color: var(--color-exito);
+  font-size: 0.95rem;
+}
+.boton-texto.centrado { display: block; margin: 0.9rem auto 0; }
+
 .alerta-error {
   margin: 1rem 0 0;
   padding: 0.7rem 0.9rem;
