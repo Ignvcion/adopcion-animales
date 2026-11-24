@@ -1,0 +1,245 @@
+/* Estilos para el boceto visual del Formulario de Solicitud (CU23) */
+
+.solicitud-contenedor {
+  max-width: 680px;
+  margin: 1.5rem auto 3rem;
+}
+
+/* Tarjeta resumen del animal */
+.solicitud-resumen-animal {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.solicitud-resumen-animal__foto {
+  width: 90px;
+  height: 90px;
+  border-radius: 10px;
+  object-fit: cover;
+  background-color: #f1ede8;
+  border: 1px solid var(--color-borde);
+  flex-shrink: 0;
+}
+
+.solicitud-resumen-animal__info h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.35rem;
+  color: var(--color-texto);
+}
+
+.solicitud-resumen-animal__detalles {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-suave);
+}
+
+.solicitud-resumen-animal__fundacion {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-primario);
+  font-weight: 600;
+}
+
+/* Formulario principal */
+.solicitud-card {
+  background: var(--color-tarjeta);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(43, 36, 32, 0.04);
+}
+
+.solicitud-card__encabezado {
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--color-borde);
+  padding-bottom: 1rem;
+}
+
+.solicitud-card__encabezado h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  color: var(--color-texto);
+}
+
+.solicitud-card__encabezado p {
+  margin: 0;
+  color: var(--color-suave);
+  font-size: 0.95rem;
+}
+
+.solicitud-campo {
+  margin-bottom: 1.35rem;
+}
+
+.solicitud-campo label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-texto);
+}
+
+.solicitud-campo__ayuda {
+  margin: 0.2rem 0 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-suave);
+}
+
+.solicitud-campo input[type="text"],
+.solicitud-campo input[type="tel"],
+.solicitud-campo select,
+.solicitud-campo textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: var(--color-texto);
+  font-size: 0.95rem;
+  transition: border-color 0.2s, outline 0.2s;
+  box-sizing: border-box;
+}
+
+.solicitud-campo textarea {
+  resize: vertical;
+  min-height: 95px;
+}
+
+.solicitud-campo input:focus,
+.solicitud-campo select:focus,
+.solicitud-campo textarea:focus {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+/* Estado de error visual */
+.solicitud-campo--error input,
+.solicitud-campo--error select,
+.solicitud-campo--error textarea {
+  border-color: var(--color-error);
+  background-color: var(--color-error-fondo);
+}
+
+.solicitud-campo__error-msg {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--color-error);
+  font-weight: 500;
+}
+
+/* Campo de compromiso (checkbox) */
+.solicitud-campo-checkbox {
+  background: #fbf9f6;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.solicitud-campo-checkbox__label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-texto);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.solicitud-campo-checkbox__label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primario);
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* Botones de acción */
+.solicitud-acciones {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-borde);
+}
+
+.boton-secundario {
+  background: transparent;
+  color: var(--color-suave);
+  border: 1px solid var(--color-borde);
+  padding: 0.7rem 1.2rem;
+  border-radius: var(--radio);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.boton-secundario:hover {
+  background: #f0eae3;
+  color: var(--color-texto);
+}
+
+/* Pantalla de confirmación (éxito) */
+.solicitud-confirmacion {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+}
+
+.solicitud-confirmacion__icono {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: #eaf6ee;
+  color: var(--color-exito);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.solicitud-confirmacion h2 {
+  margin: 0 0 0.5rem;
+  color: var(--color-texto);
+  font-size: 1.6rem;
+}
+
+.solicitud-confirmacion p {
+  color: var(--color-suave);
+  margin: 0.5rem auto 1.5rem;
+  max-width: 480px;
+}
+
+.solicitud-confirmacion__resumen {
+  text-align: left;
+  background: #faf6f1;
+  border: 1px dashed var(--color-borde);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin: 1.5rem auto;
+  max-width: 460px;
+  font-size: 0.9rem;
+}
+
+.solicitud-confirmacion__resumen dt {
+  font-weight: 600;
+  color: var(--color-suave);
+  margin-top: 0.4rem;
+}
+
+.solicitud-confirmacion__resumen dd {
+  margin-left: 0;
+  margin-bottom: 0.4rem;
+  color: var(--color-texto);
+}
