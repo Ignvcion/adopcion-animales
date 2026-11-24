@@ -1,4 +1,5 @@
 // Controlador de autenticación.
+// CU01 — Registrarse como adoptante.
 // CU02 — Iniciar sesión.
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -114,4 +115,83 @@ async function usuarioActual(req, res, next) {
   }
 }
 
-module.exports = { login, usuarioActual };
+const TELEFONO_VALIDO = /^\+?[0-9 ]{8,15}$/;
+
+/**
+ * POST /api/auth/registro
+ * Body: { nombre, email, password, telefono?, comuna? }
+ *
+ * Flujo normal: valida los datos, crea la cuenta con rol 'adoptante',
+ * guarda la contraseña cifrada y deja la sesión iniciada (devuelve el token).
+ *
+ * Excepciones:
+ *  E1 — campos obligatorios vacíos o con formato inválido   → 400
+ *  E2 — contraseña de menos de 8 caracteres                  → 400
+ *  E3 — el correo ya está registrado                         → 409
+ */
+async function registro(req, res, next) {
+  try {
+    const texto = (valor) => (typeof valor === 'string' ? valor.trim() : '');
+    const nombre = texto(req.body?.nombre);
+    const email = texto(req.body?.email).toLowerCase();
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    const telefono = texto(req.body?.telefono) || null;
+    const comuna = texto(req.body?.comuna) || null;
+
+    // E1
+    if (!nombre || !email || !password) {
+      return res.status(400).json({ error: 'Nombre, correo y contraseña son obligatorios' });
+    }
+    if (nombre.length < 2 || nombre.length > 100) {
+      return res.status(400).json({ error: 'El nombre debe tener entre 2 y 100 caracteres' });
+    }
+    if (!EMAIL_VALIDO.test(email) || email.length > 150) {
+      return res.status(400).json({ error: 'El correo no tiene un formato válido' });
+    }
+    if (telefono && !TELEFONO_VALIDO.test(telefono)) {
+      return res.status(400).json({ error: 'El teléfono no tiene un formato válido (ej: +56 9 1234 5678)' });
+    }
+    if (comuna && comuna.length > 80) {
+      return res.status(400).json({ error: 'La comuna es demasiado larga' });
+    }
+    // E2
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
+    }
+
+    // E3: se revisa antes de insertar para dar un mensaje claro
+    const [existentes] = await pool.execute(
+      'SELECT usuario_id FROM usuario WHERE email = ? LIMIT 1',
+      [email]
+    );
+    if (existentes.length > 0) {
+      return res.status(409).json({ error: 'Ese correo ya está registrado' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    let resultado;
+    try {
+      [resultado] = await pool.execute(
+        `INSERT INTO usuario (nombre, email, password_hash, rol, estado, telefono, comuna)
+         VALUES (?, ?, ?, 'adoptante', 'activo', ?, ?)`,
+        [nombre, email, hash, telefono, comuna]
+      );
+    } catch (error) {
+      // E3 también si dos personas se registran con el mismo correo al mismo tiempo
+      if (error.code === 'ER_DUP_ENTRY') {
+        return res.status(409).json({ error: 'Ese correo ya está registrado' });
+      }
+      throw error;
+    }
+
+    const usuario = { usuario_id: resultado.insertId, nombre, email, rol: 'adoptante' };
+    return res.status(201).json({
+      token: crearToken(usuario),
+      usuario: datosPublicos(usuario),
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+module.exports = { registro, login, usuarioActual };
