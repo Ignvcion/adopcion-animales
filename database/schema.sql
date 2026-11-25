@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS solicitud (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------
---  visita: visitas previas o de seguimiento asociadas a una adopción (CU27–CU28)
+--  visita: visitas previas o de seguimiento asociadas a una adopción (CU27)
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS visita (
   visita_id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -204,7 +204,7 @@ CREATE TABLE IF NOT EXISTS visita (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------
---  notificacion: avisos internos para usuarios y fundaciones (CU29)
+--  notificacion: avisos internos para usuarios y fundaciones (CU28)
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notificacion (
   notificacion_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS notificacion (
 ) ENGINE = InnoDB;
 
 -- ---------------------------------------------------------------------
---  reporte: denuncias sobre publicaciones o comportamiento (CU30)
+--  reporte: denuncias sobre publicaciones o comportamiento (CU29)
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS reporte (
   reporte_id     INT UNSIGNED NOT NULL AUTO_INCREMENT,

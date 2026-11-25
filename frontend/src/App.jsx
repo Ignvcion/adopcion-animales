@@ -20,11 +20,14 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperar" element={<RecuperarContrasena />} />
-        <Route path="/solicitud-demo" element={<FormularioSolicitud />} />
 
         {/* Requieren sesión */}
         <Route element={<RutaProtegida />}>
           <Route path="/panel" element={<Panel />} />
+        </Route>
+
+        {/* Exclusivas para adoptantes */}
+        <Route element={<RutaProtegida roles={['adoptante']} />}>
           <Route path="/favoritos" element={<MisFavoritos />} />
           <Route path="/solicitudes" element={<MisSolicitudes />} />
           <Route path="/solicitar" element={<FormularioSolicitud />} />

@@ -20,6 +20,7 @@ export default function TarjetaAnimal({
   const fundacionNombre = animal.fundacion_nombre ?? animal.fundacion;
   const imagenPrincipal = animal.foto_url || '/huella.svg';
   const estaDisponible = animal.estado === 'disponible';
+  const puedeInteractuarAdoptante = !usuario || usuario.rol === 'adoptante';
 
   const [favorito, setFavorito] = useState(Boolean(esFavorito));
   const [procesandoFav, setProcesandoFav] = useState(false);
@@ -101,23 +102,25 @@ export default function TarjetaAnimal({
         )}
 
         <div className="tarjeta-animal__acciones">
-          <button
-            type="button"
-            className={`tarjeta-animal__favorito ${favorito ? 'tarjeta-animal__favorito--activo' : ''}`}
-            onClick={alternarFavorito}
-            disabled={procesandoFav}
-            aria-pressed={favorito}
-            aria-label={
-              favorito
-                ? `Quitar a ${animal.nombre} de favoritos`
-                : `Guardar a ${animal.nombre} en favoritos`
-            }
-          >
-            <span aria-hidden="true">{favorito ? '♥' : '♡'}</span>{' '}
-            {procesandoFav ? 'Guardando…' : favorito ? 'En favoritos' : 'Favorito'}
-          </button>
+          {puedeInteractuarAdoptante && (
+            <button
+              type="button"
+              className={`tarjeta-animal__favorito ${favorito ? 'tarjeta-animal__favorito--activo' : ''}`}
+              onClick={alternarFavorito}
+              disabled={procesandoFav}
+              aria-pressed={favorito}
+              aria-label={
+                favorito
+                  ? `Quitar a ${animal.nombre} de favoritos`
+                  : `Guardar a ${animal.nombre} en favoritos`
+              }
+            >
+              <span aria-hidden="true">{favorito ? '♥' : '♡'}</span>{' '}
+              {procesandoFav ? 'Guardando…' : favorito ? 'En favoritos' : 'Favorito'}
+            </button>
+          )}
 
-          {onPostular && (
+          {onPostular && puedeInteractuarAdoptante && (
             <button
               type="button"
               className="tarjeta-animal__boton"
