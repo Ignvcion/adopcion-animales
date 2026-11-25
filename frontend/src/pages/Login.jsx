@@ -50,6 +50,7 @@ export default function Login() {
       <h1>Iniciar sesión</h1>
       <p className="subtitulo">Entra para guardar favoritos y enviar solicitudes de adopción.</p>
 
+      {ubicacion.state?.aviso && !error && <p className="alerta-info">{ubicacion.state.aviso}</p>}
       {error && <p className="alerta-error" role="alert">{error}</p>}
 
       <form onSubmit={alEnviar} noValidate>
@@ -77,6 +78,9 @@ export default function Login() {
         </button>
       </form>
 
+      <p className="nota">
+        <Link to="/recuperar">¿Olvidaste tu contraseña?</Link>
+      </p>
       <p className="nota">
         ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
       </p>

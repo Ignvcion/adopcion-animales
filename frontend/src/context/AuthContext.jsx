@@ -60,12 +60,34 @@ export function AuthProvider({ children }) {
     return usuario;
   }, []);
 
+  // CU01 — Registrarse: crea la cuenta y deja la sesión iniciada
+  const registrarse = useCallback(async (datos) => {
+    const { token, usuario } = await pedir('/auth/registro', {
+      metodo: 'POST',
+      cuerpo: datos,
+    });
+    const nueva = { token, usuario };
+    guardarSesion(nueva);
+    setSesion(nueva);
+    return usuario;
+  }, []);
+
+  // CU03 — Cerrar sesión. El token JWT no se guarda en el servidor,
+  // así que basta con borrarlo del navegador. Si ya había expirado,
+  // se cierra igual sin mostrar error.
+  const cerrarSesion = useCallback(() => {
+    guardarSesion(null);
+    setSesion(null);
+  }, []);
+
   const valor = useMemo(() => ({
     usuario: sesion?.usuario ?? null,
     token: sesion?.token ?? null,
     verificando,
     iniciarSesion,
-  }), [sesion, verificando, iniciarSesion]);
+    registrarse,
+    cerrarSesion,
+  }), [sesion, verificando, iniciarSesion, registrarse, cerrarSesion]);
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }

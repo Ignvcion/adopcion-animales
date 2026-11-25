@@ -51,3 +51,22 @@ CREATE TABLE IF NOT EXISTS fundacion (
     FOREIGN KEY (usuario_id) REFERENCES usuario (usuario_id)
     ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------
+--  recuperacion_contrasena: códigos temporales para restablecer la
+--  contraseña (CU04). Se guarda el hash del código, nunca el código.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS recuperacion_contrasena (
+  recuperacion_id INT UNSIGNED     NOT NULL AUTO_INCREMENT,
+  usuario_id      INT UNSIGNED     NOT NULL,
+  codigo_hash     CHAR(64)         NOT NULL,
+  intentos        TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  expira_en       DATETIME         NOT NULL,
+  usado_en        DATETIME         NULL,
+  creado_en       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (recuperacion_id),
+  KEY idx_recuperacion_usuario (usuario_id),
+  CONSTRAINT fk_recuperacion_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario (usuario_id)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
