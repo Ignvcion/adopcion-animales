@@ -21,8 +21,14 @@ export default function Panel() {
       <div style={{ marginTop: '2rem' }}>
         <h2>Adopciones y Solicitudes</h2>
         <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-          <Link to="/solicitud-demo" className="boton">
-            Boceto: Formulario de Solicitud (CU23)
+          <Link to="/favoritos" className="boton">
+            Mis favoritos
+          </Link>
+          <Link to="/solicitudes" className="boton">
+            Mis solicitudes
+          </Link>
+          <Link to="/solicitud-demo" className="boton-secundario">
+            Formulario de Solicitud (CU23)
           </Link>
         </div>
       </div>

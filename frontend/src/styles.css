@@ -138,3 +138,125 @@ button, input, select, textarea { font: inherit; }
   .barra { padding: 0.75rem 1rem; }
   .contenido { padding: 1.25rem 1rem; }
 }
+
+/* Módulo Favoritos y Solicitudes (CU21–CU24) */
+.encabezado-seccion {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.encabezado-seccion h1 { margin: 0 0 0.25rem; }
+
+.rejilla-animales {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.solicitudes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.solicitud-item {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  padding: 1.25rem;
+}
+
+.solicitud-item__foto {
+  width: 96px;
+  height: 96px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #f4eee7;
+  border: 1px solid var(--color-borde);
+  flex-shrink: 0;
+}
+
+.solicitud-item__contenido {
+  flex: 1;
+  min-width: 0;
+}
+
+.solicitud-item__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.solicitud-item__titulo {
+  margin: 0 0 0.2rem;
+  font-size: 1.2rem;
+}
+
+.solicitud-item__meta {
+  margin: 0;
+  color: var(--color-suave);
+  font-size: 0.9rem;
+  text-transform: capitalize;
+}
+
+.solicitud-item__fundacion {
+  margin: 0.2rem 0 0;
+  color: var(--color-primario);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.solicitud-item__estado-bloque {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.solicitud-item__codigo {
+  font-size: 0.82rem;
+  color: var(--color-suave);
+}
+
+.estado-badge {
+  display: inline-block;
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.estado-badge--pendiente { background: #fef3c7; color: #92400e; }
+.estado-badge--en_revision { background: #e0f2fe; color: #075985; }
+.estado-badge--aprobada,
+.estado-badge--completada { background: #eaf6ef; color: var(--color-exito); }
+.estado-badge--rechazada { background: var(--color-error-fondo); color: var(--color-error); }
+.estado-badge--cancelada { background: #f1ede8; color: var(--color-suave); }
+
+.solicitud-item__detalles {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin: 0.9rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-borde);
+  font-size: 0.9rem;
+}
+.solicitud-item__detalles dt {
+  color: var(--color-suave);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.solicitud-item__detalles dd {
+  margin: 0.1rem 0 0;
+  color: var(--color-texto);
+}
+
+@media (max-width: 600px) {
+  .solicitud-item { flex-direction: column; }
+  .solicitud-item__estado-bloque { align-items: flex-start; }
+}
