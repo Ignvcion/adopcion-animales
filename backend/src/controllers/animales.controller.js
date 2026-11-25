@@ -5,9 +5,11 @@
 const { pool } = require('../config/db');
 
 const ESPECIES_VALIDAS = ['perro', 'gato', 'otro'];
+const RANGOS_EDAD_VALIDOS = ['cachorro', 'joven', 'adulto', 'senior'];
 const SEXOS_VALIDOS = ['macho', 'hembra'];
 const TAMANOS_VALIDOS = ['pequeno', 'mediano', 'grande'];
 const ESTADOS_VALIDOS = ['disponible', 'en_proceso', 'adoptado', 'archivado'];
+const MAX_FOTOS = 5;
 
 const texto = (valor) => (typeof valor === 'string' ? valor.trim() : '');
 
@@ -23,8 +25,75 @@ async function obtenerFundacionAprobada(usuarioId) {
 }
 
 /**
+ * Valida y normaliza los campos comunes de publicar (CU11) y editar (CU12).
+ * Devuelve { error } si algún dato es inválido, o { datos } si está correcto.
+ */
+function validarDatosAnimal(body) {
+  const nombre = texto(body?.nombre);
+  const especie = texto(body?.especie).toLowerCase();
+  const raza = texto(body?.raza) || null;
+  const edadAprox = texto(body?.edad_aprox);
+  const rangoEdad = texto(body?.rango_edad).toLowerCase();
+  const sexo = texto(body?.sexo).toLowerCase();
+  const tamano = texto(body?.tamano).toLowerCase();
+  const comuna = texto(body?.comuna);
+  const descripcion = texto(body?.descripcion);
+  const estadoSalud = texto(body?.estado_salud) || null;
+  const requisitosAdopcion = texto(body?.requisitos_adopcion) || null;
+
+  if (!nombre || !especie || !edadAprox || !rangoEdad || !sexo || !tamano || !comuna || !descripcion) {
+    return {
+      error: 'Nombre, especie, edad aproximada, rango de edad, sexo, tamaño, comuna y descripción son obligatorios',
+    };
+  }
+  if (nombre.length > 100) {
+    return { error: 'El nombre no puede superar los 100 caracteres' };
+  }
+  if (raza && raza.length > 100) {
+    return { error: 'La raza no puede superar los 100 caracteres' };
+  }
+  if (edadAprox.length > 50) {
+    return { error: 'La edad aproximada no puede superar los 50 caracteres' };
+  }
+  if (comuna.length > 80) {
+    return { error: 'La comuna no puede superar los 80 caracteres' };
+  }
+  if (estadoSalud && estadoSalud.length > 255) {
+    return { error: 'El estado de salud no puede superar los 255 caracteres' };
+  }
+  if (!ESPECIES_VALIDAS.includes(especie)) {
+    return { error: 'La especie debe ser perro, gato u otro' };
+  }
+  if (!RANGOS_EDAD_VALIDOS.includes(rangoEdad)) {
+    return { error: 'El rango de edad debe ser cachorro, joven, adulto o senior' };
+  }
+  if (!SEXOS_VALIDOS.includes(sexo)) {
+    return { error: 'El sexo debe ser macho o hembra' };
+  }
+  if (!TAMANOS_VALIDOS.includes(tamano)) {
+    return { error: 'El tamaño debe ser pequeno, mediano o grande' };
+  }
+
+  return {
+    datos: {
+      nombre,
+      especie,
+      raza,
+      edadAprox,
+      rangoEdad,
+      sexo,
+      tamano,
+      comuna,
+      descripcion,
+      estadoSalud,
+      requisitosAdopcion,
+    },
+  };
+}
+
+/**
  * POST /api/animales (CU11)
- * Body: { nombre, especie, raza?, edad_aprox, sexo, tamano, comuna,
+ * Body: { nombre, especie, raza?, edad_aprox, rango_edad, sexo, tamano, comuna,
  *         descripcion, estado_salud?, requisitos_adopcion?, fotos?: string[] }
  */
 async function publicarAnimal(req, res, next) {
@@ -36,38 +105,25 @@ async function publicarAnimal(req, res, next) {
       });
     }
 
-    const nombre = texto(req.body?.nombre);
-    const especie = texto(req.body?.especie).toLowerCase();
-    const raza = texto(req.body?.raza) || null;
-    const edadAprox = texto(req.body?.edad_aprox);
-    const sexo = texto(req.body?.sexo).toLowerCase();
-    const tamano = texto(req.body?.tamano).toLowerCase();
-    const comuna = texto(req.body?.comuna);
-    const descripcion = texto(req.body?.descripcion);
-    const estadoSalud = texto(req.body?.estado_salud) || null;
-    const requisitosAdopcion = texto(req.body?.requisitos_adopcion) || null;
-
-    if (!nombre || !especie || !edadAprox || !sexo || !tamano || !comuna || !descripcion) {
-      return res.status(400).json({
-        error: 'Nombre, especie, edad aproximada, sexo, tamaño, comuna y descripción son obligatorios',
-      });
-    }
-    if (nombre.length > 100 || comuna.length > 80 || edadAprox.length > 50) {
-      return res.status(400).json({ error: 'Uno o más campos superan el largo permitido' });
-    }
-    if (!ESPECIES_VALIDAS.includes(especie)) {
-      return res.status(400).json({ error: 'La especie debe ser perro, gato u otro' });
-    }
-    if (!SEXOS_VALIDOS.includes(sexo)) {
-      return res.status(400).json({ error: 'El sexo debe ser macho o hembra' });
-    }
-    if (!TAMANOS_VALIDOS.includes(tamano)) {
-      return res.status(400).json({ error: 'El tamaño debe ser pequeno, mediano o grande' });
+    const { error, datos } = validarDatosAnimal(req.body);
+    if (error) {
+      return res.status(400).json({ error });
     }
 
     const fotos = Array.isArray(req.body?.fotos)
       ? req.body.fotos.map((url) => texto(url)).filter(Boolean)
       : [];
+
+    if (fotos.length > MAX_FOTOS) {
+      return res.status(400).json({
+        error: `Se permite un máximo de ${MAX_FOTOS} fotos por animal`,
+      });
+    }
+    if (fotos.some((url) => url.length > 500)) {
+      return res.status(400).json({
+        error: 'Cada URL de foto no puede superar los 500 caracteres',
+      });
+    }
 
     const conexion = await pool.getConnection();
     try {
@@ -75,12 +131,22 @@ async function publicarAnimal(req, res, next) {
 
       const [resultado] = await conexion.execute(
         `INSERT INTO animal (
-           fundacion_id, nombre, especie, raza, edad_aprox, sexo, tamano,
+           fundacion_id, nombre, especie, raza, edad_aprox, rango_edad, sexo, tamano,
            comuna, descripcion, estado_salud, requisitos_adopcion, estado
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible')`,
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'disponible')`,
         [
-          fundacion.fundacion_id, nombre, especie, raza, edadAprox, sexo, tamano,
-          comuna, descripcion, estadoSalud, requisitosAdopcion,
+          fundacion.fundacion_id,
+          datos.nombre,
+          datos.especie,
+          datos.raza,
+          datos.edadAprox,
+          datos.rangoEdad,
+          datos.sexo,
+          datos.tamano,
+          datos.comuna,
+          datos.descripcion,
+          datos.estadoSalud,
+          datos.requisitosAdopcion,
         ]
       );
 
@@ -101,16 +167,17 @@ async function publicarAnimal(req, res, next) {
         animal: {
           animal_id: animalId,
           fundacion_id: fundacion.fundacion_id,
-          nombre,
-          especie,
-          raza,
-          edad_aprox: edadAprox,
-          sexo,
-          tamano,
-          comuna,
-          descripcion,
-          estado_salud: estadoSalud,
-          requisitos_adopcion: requisitosAdopcion,
+          nombre: datos.nombre,
+          especie: datos.especie,
+          raza: datos.raza,
+          edad_aprox: datos.edadAprox,
+          rango_edad: datos.rangoEdad,
+          sexo: datos.sexo,
+          tamano: datos.tamano,
+          comuna: datos.comuna,
+          descripcion: datos.descripcion,
+          estado_salud: datos.estadoSalud,
+          requisitos_adopcion: datos.requisitosAdopcion,
           estado: 'disponible',
           fotos,
         },
@@ -154,41 +221,30 @@ async function editarAnimal(req, res, next) {
       return res.status(403).json({ error: 'No puedes editar animales de otra fundación' });
     }
 
-    const nombre = texto(req.body?.nombre);
-    const especie = texto(req.body?.especie).toLowerCase();
-    const raza = texto(req.body?.raza) || null;
-    const edadAprox = texto(req.body?.edad_aprox);
-    const sexo = texto(req.body?.sexo).toLowerCase();
-    const tamano = texto(req.body?.tamano).toLowerCase();
-    const comuna = texto(req.body?.comuna);
-    const descripcion = texto(req.body?.descripcion);
-    const estadoSalud = texto(req.body?.estado_salud) || null;
-    const requisitosAdopcion = texto(req.body?.requisitos_adopcion) || null;
-
-    if (!nombre || !especie || !edadAprox || !sexo || !tamano || !comuna || !descripcion) {
-      return res.status(400).json({
-        error: 'Nombre, especie, edad aproximada, sexo, tamaño, comuna y descripción son obligatorios',
-      });
-    }
-    if (!ESPECIES_VALIDAS.includes(especie)) {
-      return res.status(400).json({ error: 'La especie debe ser perro, gato u otro' });
-    }
-    if (!SEXOS_VALIDOS.includes(sexo)) {
-      return res.status(400).json({ error: 'El sexo debe ser macho o hembra' });
-    }
-    if (!TAMANOS_VALIDOS.includes(tamano)) {
-      return res.status(400).json({ error: 'El tamaño debe ser pequeno, mediano o grande' });
+    const { error, datos } = validarDatosAnimal(req.body);
+    if (error) {
+      return res.status(400).json({ error });
     }
 
     await pool.execute(
       `UPDATE animal
-          SET nombre = ?, especie = ?, raza = ?, edad_aprox = ?, sexo = ?,
-              tamano = ?, comuna = ?, descripcion = ?, estado_salud = ?,
+          SET nombre = ?, especie = ?, raza = ?, edad_aprox = ?, rango_edad = ?,
+              sexo = ?, tamano = ?, comuna = ?, descripcion = ?, estado_salud = ?,
               requisitos_adopcion = ?
         WHERE animal_id = ?`,
       [
-        nombre, especie, raza, edadAprox, sexo, tamano,
-        comuna, descripcion, estadoSalud, requisitosAdopcion, animalId,
+        datos.nombre,
+        datos.especie,
+        datos.raza,
+        datos.edadAprox,
+        datos.rangoEdad,
+        datos.sexo,
+        datos.tamano,
+        datos.comuna,
+        datos.descripcion,
+        datos.estadoSalud,
+        datos.requisitosAdopcion,
+        animalId,
       ]
     );
 
@@ -196,16 +252,17 @@ async function editarAnimal(req, res, next) {
       mensaje: 'Ficha del animal actualizada',
       animal: {
         animal_id: animalId,
-        nombre,
-        especie,
-        raza,
-        edad_aprox: edadAprox,
-        sexo,
-        tamano,
-        comuna,
-        descripcion,
-        estado_salud: estadoSalud,
-        requisitos_adopcion: requisitosAdopcion,
+        nombre: datos.nombre,
+        especie: datos.especie,
+        raza: datos.raza,
+        edad_aprox: datos.edadAprox,
+        rango_edad: datos.rangoEdad,
+        sexo: datos.sexo,
+        tamano: datos.tamano,
+        comuna: datos.comuna,
+        descripcion: datos.descripcion,
+        estado_salud: datos.estadoSalud,
+        requisitos_adopcion: datos.requisitosAdopcion,
       },
     });
   } catch (error) {

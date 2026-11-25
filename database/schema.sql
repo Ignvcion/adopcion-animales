@@ -71,9 +71,6 @@ CREATE TABLE IF NOT EXISTS recuperacion_contrasena (
     ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
--- ---------------------------------------------------------------------
---  animal: mascotas publicadas por fundaciones aprobadas (CU11–CU20)
--- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS animal (
   animal_id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
   fundacion_id         INT UNSIGNED NOT NULL,
@@ -81,6 +78,7 @@ CREATE TABLE IF NOT EXISTS animal (
   especie              ENUM('perro', 'gato', 'otro') NOT NULL,
   raza                 VARCHAR(100) NULL,
   edad_aprox           VARCHAR(50)  NOT NULL,
+  rango_edad           ENUM('cachorro', 'joven', 'adulto', 'senior') NOT NULL,
   sexo                 ENUM('macho', 'hembra') NOT NULL,
   tamano               ENUM('pequeno', 'mediano', 'grande') NOT NULL,
   comuna               VARCHAR(80)  NOT NULL,
@@ -93,6 +91,7 @@ CREATE TABLE IF NOT EXISTS animal (
   PRIMARY KEY (animal_id),
   KEY idx_animal_fundacion (fundacion_id),
   KEY idx_animal_estado (estado),
+  KEY idx_animal_rango_edad (rango_edad),
   CONSTRAINT fk_animal_fundacion
     FOREIGN KEY (fundacion_id) REFERENCES fundacion (fundacion_id)
     ON DELETE CASCADE
