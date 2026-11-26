@@ -44,6 +44,19 @@ export default function Panel() {
         </div>
       )}
 
+      {/* Módulo Solicitudes Fundación (CU25–CU26) */}
+      {usuario.rol === 'fundacion' && (
+        <div style={{ marginTop: '2rem' }}>
+          <h2>Solicitudes de adopción recibidas</h2>
+          <p className="subtitulo">Revisa y gestiona las postulaciones para los animales de tu fundación.</p>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <Link to="/panel/solicitudes" className="boton">
+              Ver solicitudes recibidas
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Módulo Administración (CU07–CU09) */}
       {usuario.rol === 'admin' && (
         <div className="seccion-panel">
