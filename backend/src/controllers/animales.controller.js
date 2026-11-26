@@ -3,6 +3,9 @@
 // CU12 — Editar ficha de animal.
 // CU13 — Archivar / cambiar estado de publicación de animal.
 // CU14 — Subir y ordenar fotos del animal.
+// CU15 — Ver catálogo público de animales disponibles.
+// CU16 — Filtrar catálogo de animales.
+// CU17 — Ver ficha completa del animal.
 const { pool } = require('../config/db');
 
 const ESPECIES_VALIDAS = ['perro', 'gato', 'otro'];
@@ -555,11 +558,60 @@ async function eliminarFotoAnimal(req, res, next) {
 }
 
 /**
- * GET /api/animales (CU15)
- * Lista los animales disponibles de fundaciones aprobadas con su foto principal.
+ * GET /api/animales (CU15–CU16)
+ * Lista los animales disponibles de fundaciones aprobadas con filtros opcionales:
+ * ?especie=&tamano=&rango_edad=&sexo=&comuna=&q=
  */
 async function listarCatalogoAnimales(req, res, next) {
   try {
+    const especie = texto(req.query?.especie).toLowerCase();
+    const tamano = texto(req.query?.tamano).toLowerCase();
+    const rangoEdad = texto(req.query?.rango_edad).toLowerCase();
+    const sexo = texto(req.query?.sexo).toLowerCase();
+    const comuna = texto(req.query?.comuna).toLowerCase();
+    const busqueda = texto(req.query?.q).toLowerCase();
+
+    if (especie && !ESPECIES_VALIDAS.includes(especie)) {
+      return res.status(400).json({ error: 'Filtro de especie inválido' });
+    }
+    if (tamano && !TAMANOS_VALIDOS.includes(tamano)) {
+      return res.status(400).json({ error: 'Filtro de tamaño inválido' });
+    }
+    if (rangoEdad && !RANGOS_EDAD_VALIDOS.includes(rangoEdad)) {
+      return res.status(400).json({ error: 'Filtro de rango de edad inválido' });
+    }
+    if (sexo && !SEXOS_VALIDOS.includes(sexo)) {
+      return res.status(400).json({ error: 'Filtro de sexo inválido' });
+    }
+
+    const condiciones = ["a.estado = 'disponible'", "f.estado = 'aprobada'"];
+    const parametros = [];
+
+    if (especie) {
+      condiciones.push('a.especie = ?');
+      parametros.push(especie);
+    }
+    if (tamano) {
+      condiciones.push('a.tamano = ?');
+      parametros.push(tamano);
+    }
+    if (rangoEdad) {
+      condiciones.push('a.rango_edad = ?');
+      parametros.push(rangoEdad);
+    }
+    if (sexo) {
+      condiciones.push('a.sexo = ?');
+      parametros.push(sexo);
+    }
+    if (comuna) {
+      condiciones.push('LOWER(a.comuna) LIKE ?');
+      parametros.push(`%${comuna}%`);
+    }
+    if (busqueda) {
+      condiciones.push("(LOWER(a.nombre) LIKE ? OR LOWER(COALESCE(a.raza, '')) LIKE ?)");
+      parametros.push(`%${busqueda}%`, `%${busqueda}%`);
+    }
+
     const [filas] = await pool.execute(
       `SELECT a.animal_id,
               a.fundacion_id,
@@ -586,9 +638,9 @@ async function listarCatalogoAnimales(req, res, next) {
               ) AS foto_url
          FROM animal a
          INNER JOIN fundacion f ON f.fundacion_id = a.fundacion_id
-        WHERE a.estado = 'disponible'
-          AND f.estado = 'aprobada'
-        ORDER BY a.creado_en DESC, a.animal_id DESC`
+        WHERE ${condiciones.join(' AND ')}
+        ORDER BY a.creado_en DESC, a.animal_id DESC`,
+      parametros
     );
 
     return res.json({ animales: filas });
@@ -615,9 +667,72 @@ async function listarFotosAnimal(req, res, next) {
   }
 }
 
+/**
+ * GET /api/animales/:id (CU17)
+ * Devuelve la ficha completa de un animal junto con su galería de fotos y datos de la fundación.
+ */
+async function obtenerDetalleAnimal(req, res, next) {
+  try {
+    const animalId = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(animalId) || animalId <= 0) {
+      return res.status(400).json({ error: 'ID de animal inválido' });
+    }
+
+   const [filas] = await pool.execute(
+      `SELECT a.animal_id,
+              a.fundacion_id,
+              a.nombre,
+              a.especie,
+              a.raza,
+              a.edad_aprox,
+              a.rango_edad,
+              a.sexo,
+              a.tamano,
+              a.comuna,
+              a.descripcion,
+              a.estado_salud,
+              a.requisitos_adopcion,
+              a.estado,
+              a.creado_en,
+              f.nombre AS fundacion_nombre,
+              f.comuna AS fundacion_comuna,
+              f.descripcion AS fundacion_descripcion,
+              f.telefono AS fundacion_telefono,
+              u.email AS fundacion_correo
+         FROM animal a
+         INNER JOIN fundacion f ON f.fundacion_id = a.fundacion_id
+         INNER JOIN usuario u ON u.usuario_id = f.usuario_id
+        WHERE a.animal_id = ?
+          AND a.estado <> 'archivado'
+          AND f.estado = 'aprobada'
+        LIMIT 1`,
+      [animalId]
+    );
+
+    const animal = filas[0];
+    if (!animal) {
+      return res.status(404).json({ error: 'Animal no encontrado' });
+    }
+
+    const fotos = await obtenerFotosDeAnimal(pool, animalId);
+    const fotoPrincipal = fotos[0]?.url || null;
+
+    return res.json({
+      animal: {
+        ...animal,
+        foto_url: fotoPrincipal,
+        fotos,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   listarCatalogoAnimales,
   listarFotosAnimal,
+  obtenerDetalleAnimal,
   publicarAnimal,
   editarAnimal,
   cambiarEstadoAnimal,

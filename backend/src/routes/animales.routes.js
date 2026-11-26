@@ -2,6 +2,7 @@ const { Router } = require('express');
 const {
   listarCatalogoAnimales,
   listarFotosAnimal,
+  obtenerDetalleAnimal,
   publicarAnimal,
   editarAnimal,
   cambiarEstadoAnimal,
@@ -13,9 +14,10 @@ const { verificarToken, permitirRoles } = require('../middleware/auth');
 
 const router = Router();
 
-// Catálogo público y galería de fotos (CU14–CU15)
-router.get('/', listarCatalogoAnimales);              // CU15 (público)
-router.get('/:id/fotos', listarFotosAnimal);          // CU14 (público)
+// Catálogo público con filtros, galería y ficha del animal (CU14–CU17)
+router.get('/', listarCatalogoAnimales);              // CU15–CU16
+router.get('/:id/fotos', listarFotosAnimal);          // CU14
+router.get('/:id', obtenerDetalleAnimal);             // CU17
 
 // Gestión de animales y fotos por fundaciones (CU11–CU14)
 router.post('/', verificarToken, permitirRoles('fundacion'), publicarAnimal);                   // CU11
