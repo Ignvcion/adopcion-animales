@@ -554,7 +554,51 @@ async function eliminarFotoAnimal(req, res, next) {
   }
 }
 
+/**
+ * GET /api/animales (CU15)
+ * Lista los animales disponibles de fundaciones aprobadas con su foto principal.
+ */
+async function listarCatalogoAnimales(req, res, next) {
+  try {
+    const [filas] = await pool.execute(
+      `SELECT a.animal_id,
+              a.fundacion_id,
+              a.nombre,
+              a.especie,
+              a.raza,
+              a.edad_aprox,
+              a.rango_edad,
+              a.sexo,
+              a.tamano,
+              a.comuna,
+              a.descripcion,
+              a.estado_salud,
+              a.requisitos_adopcion,
+              a.estado,
+              a.creado_en,
+              f.nombre AS fundacion_nombre,
+              (
+                SELECT fa.url
+                  FROM foto_animal fa
+                 WHERE fa.animal_id = a.animal_id
+                 ORDER BY fa.es_principal DESC, fa.orden ASC, fa.foto_animal_id ASC
+                 LIMIT 1
+              ) AS foto_url
+         FROM animal a
+         INNER JOIN fundacion f ON f.fundacion_id = a.fundacion_id
+        WHERE a.estado = 'disponible'
+          AND f.estado = 'aprobada'
+        ORDER BY a.creado_en DESC, a.animal_id DESC`
+    );
+
+    return res.json({ animales: filas });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
+  listarCatalogoAnimales,
   publicarAnimal,
   editarAnimal,
   cambiarEstadoAnimal,
