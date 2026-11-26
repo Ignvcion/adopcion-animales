@@ -20,6 +20,7 @@ app.get('/api/salud', (req, res) => {
 // (se agregan aquí a medida que cada integrante sube su parte)
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/perfil', require('./routes/perfil.routes'));
+app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/animales', require('./routes/animales.routes'));
 app.use('/api/favoritos', require('./routes/favoritos.routes'));
 app.use('/api/solicitudes', require('./routes/solicitudes.routes'));
