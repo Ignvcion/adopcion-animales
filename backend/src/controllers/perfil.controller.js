@@ -1,5 +1,7 @@
 // Controlador del perfil del usuario.
 // CU05 — Ver y editar mi perfil.
+// CU10 — Cambiar contraseña.
+const bcrypt = require('bcryptjs');
 const { pool } = require('../config/db');
 
 const TELEFONO_VALIDO = /^\+?[0-9 ]{8,15}$/;
@@ -101,4 +103,55 @@ async function editarPerfil(req, res, next) {
   }
 }
 
-module.exports = { verPerfil, editarPerfil };
+/**
+ * PUT /api/perfil/contrasena
+ * Body: { actual, nueva }
+ * CU10 — Cambiar contraseña estando con la sesión iniciada.
+ *
+ * Excepciones:
+ *  E1 — datos vacíos o contraseña nueva de menos de 8 caracteres → 400
+ *  E2 — la contraseña nueva es igual a la actual                  → 400
+ *  E3 — la contraseña actual es incorrecta                        → 401
+ * (La confirmación "repite la contraseña" se revisa en la vista.)
+ */
+async function cambiarContrasena(req, res, next) {
+  try {
+    const actual = typeof req.body?.actual === 'string' ? req.body.actual : '';
+    const nueva = typeof req.body?.nueva === 'string' ? req.body.nueva : '';
+
+    // E1
+    if (!actual || !nueva) {
+      return res.status(400).json({ error: 'Debes ingresar tu contraseña actual y la nueva' });
+    }
+    if (nueva.length < 8) {
+      return res.status(400).json({ error: 'La contraseña nueva debe tener al menos 8 caracteres' });
+    }
+    // E2
+    if (nueva === actual) {
+      return res.status(400).json({ error: 'La contraseña nueva debe ser distinta de la actual' });
+    }
+
+    const [filas] = await pool.execute(
+      'SELECT password_hash FROM usuario WHERE usuario_id = ? LIMIT 1',
+      [req.usuario.id]
+    );
+    if (!filas[0]) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // E3
+    const coincide = await bcrypt.compare(actual, filas[0].password_hash);
+    if (!coincide) {
+      return res.status(401).json({ error: 'La contraseña actual es incorrecta' });
+    }
+
+    const hash = await bcrypt.hash(nueva, 10);
+    await pool.execute('UPDATE usuario SET password_hash = ? WHERE usuario_id = ?', [hash, req.usuario.id]);
+
+    return res.json({ mensaje: 'Tu contraseña fue actualizada' });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+module.exports = { verPerfil, editarPerfil, cambiarContrasena };
