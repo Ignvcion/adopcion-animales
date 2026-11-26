@@ -12,6 +12,7 @@ import Perfil from './pages/Perfil.jsx';
 import MisFavoritos from './pages/MisFavoritos.jsx';
 import MisSolicitudes from './pages/MisSolicitudes.jsx';
 import GestionFotos from './pages/GestionFotos.jsx';
+import SolicitudesFundacion from './pages/SolicitudesFundacion.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
 import FichaAnimal from './pages/FichaAnimal.jsx';
 
@@ -43,6 +44,7 @@ export default function App() {
         {/* Exclusivas para fundaciones */}
         <Route element={<RutaProtegida roles={['fundacion']} />}>
           <Route path="/panel/fotos" element={<GestionFotos />} />
+          <Route path="/panel/solicitudes" element={<SolicitudesFundacion />} />
         </Route>
 
         <Route path="*" element={<NoEncontrada />} />
