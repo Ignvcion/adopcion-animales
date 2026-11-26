@@ -62,6 +62,7 @@ export default function Panel() {
         <div className="seccion-panel">
           <h2>Administración</h2>
           <div className="acciones">
+            <Link to="/admin/estadisticas" className="boton">Ver estadísticas</Link>
             <Link to="/admin/fundaciones" className="boton">Revisar fundaciones</Link>
             <Link to="/admin/usuarios" className="boton">Gestionar usuarios</Link>
           </div>
