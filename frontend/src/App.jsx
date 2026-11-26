@@ -14,6 +14,7 @@ import MisSolicitudes from './pages/MisSolicitudes.jsx';
 import GestionFotos from './pages/GestionFotos.jsx';
 import SolicitudesFundacion from './pages/SolicitudesFundacion.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
+import FichaAnimal from './pages/FichaAnimal.jsx';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
       <Route element={<Layout />}>
         {/* Públicas */}
         <Route path="/" element={<Inicio />} />
+        <Route path="/animales/:id" element={<FichaAnimal />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/registro-fundacion" element={<RegistroFundacion />} />
