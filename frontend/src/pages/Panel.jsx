@@ -50,6 +50,7 @@ export default function Panel() {
           <h2>Administración</h2>
           <div className="acciones">
             <Link to="/admin/fundaciones" className="boton">Revisar fundaciones</Link>
+            <Link to="/admin/usuarios" className="boton">Gestionar usuarios</Link>
           </div>
         </div>
       )}
