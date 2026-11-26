@@ -80,6 +80,17 @@ export function AuthProvider({ children }) {
     setSesion(null);
   }, []);
 
+  // Actualiza los datos del usuario guardados en la sesión (por ejemplo,
+  // cuando cambia su nombre en el perfil) sin tener que volver a entrar.
+  const actualizarUsuario = useCallback((cambios) => {
+    setSesion((actual) => {
+      if (!actual) return actual;
+      const nueva = { ...actual, usuario: { ...actual.usuario, ...cambios } };
+      guardarSesion(nueva);
+      return nueva;
+    });
+  }, []);
+
   const valor = useMemo(() => ({
     usuario: sesion?.usuario ?? null,
     token: sesion?.token ?? null,
@@ -87,7 +98,8 @@ export function AuthProvider({ children }) {
     iniciarSesion,
     registrarse,
     cerrarSesion,
-  }), [sesion, verificando, iniciarSesion, registrarse, cerrarSesion]);
+    actualizarUsuario,
+  }), [sesion, verificando, iniciarSesion, registrarse, cerrarSesion, actualizarUsuario]);
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }

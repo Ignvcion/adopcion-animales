@@ -7,6 +7,7 @@ import Login from './pages/Login.jsx';
 import Registro from './pages/Registro.jsx';
 import RecuperarContrasena from './pages/RecuperarContrasena.jsx';
 import Panel from './pages/Panel.jsx';
+import Perfil from './pages/Perfil.jsx';
 import MisFavoritos from './pages/MisFavoritos.jsx';
 import MisSolicitudes from './pages/MisSolicitudes.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
@@ -24,6 +25,7 @@ export default function App() {
         {/* Requieren sesión */}
         <Route element={<RutaProtegida />}>
           <Route path="/panel" element={<Panel />} />
+          <Route path="/perfil" element={<Perfil />} />
         </Route>
 
         {/* Exclusivas para adoptantes */}
