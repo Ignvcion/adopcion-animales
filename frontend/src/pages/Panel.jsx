@@ -31,6 +31,18 @@ export default function Panel() {
           </div>
         </div>
       )}
+
+      {/* Módulo Animales y Fundaciones (CU11–CU14) */}
+      {usuario.rol === 'fundacion' && (
+        <div style={{ marginTop: '2rem' }}>
+          <h2>Gestión de animales</h2>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <Link to="/panel/fotos" className="boton">
+              Subir y ordenar fotos
+            </Link>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

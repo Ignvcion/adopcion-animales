@@ -9,6 +9,7 @@ import RecuperarContrasena from './pages/RecuperarContrasena.jsx';
 import Panel from './pages/Panel.jsx';
 import MisFavoritos from './pages/MisFavoritos.jsx';
 import MisSolicitudes from './pages/MisSolicitudes.jsx';
+import GestionFotos from './pages/GestionFotos.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
 
 export default function App() {
@@ -31,6 +32,11 @@ export default function App() {
           <Route path="/favoritos" element={<MisFavoritos />} />
           <Route path="/solicitudes" element={<MisSolicitudes />} />
           <Route path="/solicitar" element={<FormularioSolicitud />} />
+        </Route>
+
+        {/* Exclusivas para fundaciones */}
+        <Route element={<RutaProtegida roles={['fundacion']} />}>
+          <Route path="/panel/fotos" element={<GestionFotos />} />
         </Route>
 
         <Route path="*" element={<NoEncontrada />} />
