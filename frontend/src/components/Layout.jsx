@@ -29,7 +29,8 @@ export default function Layout() {
                   <NavLink to="/solicitudes">Mis solicitudes</NavLink>
                 </>
               )}
-              <NavLink to="/panel">{usuario.nombre}</NavLink>
+              <NavLink to="/panel">Panel</NavLink>
+              <NavLink to="/perfil">{usuario.nombre}</NavLink>
               <button type="button" className="boton-texto" onClick={salir}>
                 Cerrar sesión
               </button>

@@ -102,6 +102,9 @@ export default function Registro() {
       <p className="nota">
         ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
       </p>
+      <p className="nota">
+        ¿Representas a una fundación? <Link to="/registro-fundacion">Regístrala aquí</Link>
+      </p>
     </section>
   );
 }

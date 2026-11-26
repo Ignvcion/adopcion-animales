@@ -115,6 +115,27 @@ button, input, select, textarea { font: inherit; }
 .formulario input[aria-invalid='true'] { border-color: var(--color-error); }
 .error-campo { display: block; margin-top: 0.3rem; color: var(--color-error); font-size: 0.85rem; }
 
+.formulario-ancho { max-width: 560px; }
+.formulario fieldset { border: none; margin: 1.25rem 0 0; padding: 0; }
+.formulario legend { font-size: 1.05rem; font-weight: 700; padding: 0; }
+.formulario textarea {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  resize: vertical;
+}
+
+.datos-perfil {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.6rem 1.25rem;
+  margin: 1.25rem 0 0;
+}
+.datos-perfil dt { font-weight: 600; color: var(--color-suave); }
+.datos-perfil dd { margin: 0; word-break: break-word; }
+.formulario input:disabled { background: var(--color-fondo); color: var(--color-suave); }
+
 .alerta-info {
   margin: 1rem 0 0;
   padding: 0.7rem 0.9rem;
