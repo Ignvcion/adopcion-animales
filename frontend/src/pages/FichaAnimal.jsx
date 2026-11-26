@@ -134,7 +134,7 @@ export default function FichaAnimal() {
   if (error || !animal) {
     return (
       <section>
-        <p role="alert" style={{ color: '#b91c1c', marginBottom: '1rem' }}>
+        <p className="alerta-error" role="alert" style={{ marginBottom: '1rem' }}>
           {error || 'Animal no encontrado.'}
         </p>
         <Link to="/" className="boton-secundario">
@@ -323,7 +323,7 @@ export default function FichaAnimal() {
           </div>
 
           {errorFav && (
-            <p role="alert" style={{ color: '#b91c1c', marginTop: '0.75rem' }}>
+            <p className="alerta-error" role="alert" style={{ marginTop: '0.75rem' }}>
               {errorFav}
             </p>
           )}

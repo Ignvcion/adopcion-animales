@@ -678,7 +678,7 @@ async function obtenerDetalleAnimal(req, res, next) {
       return res.status(400).json({ error: 'ID de animal inválido' });
     }
 
-    const [filas] = await pool.execute(
+   const [filas] = await pool.execute(
       `SELECT a.animal_id,
               a.fundacion_id,
               a.nombre,
@@ -698,7 +698,7 @@ async function obtenerDetalleAnimal(req, res, next) {
               f.comuna AS fundacion_comuna,
               f.descripcion AS fundacion_descripcion,
               f.telefono AS fundacion_telefono,
-              u.correo AS fundacion_correo
+              u.email AS fundacion_correo
          FROM animal a
          INNER JOIN fundacion f ON f.fundacion_id = a.fundacion_id
          INNER JOIN usuario u ON u.usuario_id = f.usuario_id
