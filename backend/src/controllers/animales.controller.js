@@ -597,8 +597,27 @@ async function listarCatalogoAnimales(req, res, next) {
   }
 }
 
+/**
+ * GET /api/animales/:id/fotos (CU14)
+ * Devuelve la galería ordenada de fotos de un animal.
+ */
+async function listarFotosAnimal(req, res, next) {
+  try {
+    const animalId = Number.parseInt(req.params.id, 10);
+    if (!Number.isInteger(animalId) || animalId <= 0) {
+      return res.status(400).json({ error: 'ID de animal inválido' });
+    }
+
+    const fotos = await obtenerFotosDeAnimal(pool, animalId);
+    return res.json({ fotos });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   listarCatalogoAnimales,
+  listarFotosAnimal,
   publicarAnimal,
   editarAnimal,
   cambiarEstadoAnimal,
