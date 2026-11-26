@@ -56,6 +56,17 @@ export default function Panel() {
           </div>
         </div>
       )}
+
+      {/* Módulo Administración (CU07–CU09) */}
+      {usuario.rol === 'admin' && (
+        <div className="seccion-panel">
+          <h2>Administración</h2>
+          <div className="acciones">
+            <Link to="/admin/fundaciones" className="boton">Revisar fundaciones</Link>
+            <Link to="/admin/usuarios" className="boton">Gestionar usuarios</Link>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
