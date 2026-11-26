@@ -54,37 +54,38 @@ ON DUPLICATE KEY UPDATE
 -- ---------------------------------------------------------------------
 --  3. 15 Animales variados para pruebas
 -- ---------------------------------------------------------------------
-INSERT INTO animal (animal_id, fundacion_id, nombre, especie, tamano, edad_aprox, sexo, descripcion, comuna, estado)
+INSERT INTO animal (animal_id, fundacion_id, nombre, especie, edad_aprox, rango_edad, sexo, tamano, comuna, descripcion, estado)
 VALUES
   -- Refugio Esperanza Animal (Pedro Aguirre Cerda)
-  (1, 1, 'Bizcochito', 'perro', 'mediano', '9 meses', 'macho', 'Cachorro sociable, juguetón y con sus vacunas al día. Se lleva excelente con otros perros.', 'Pedro Aguirre Cerda', 'disponible'),
-  (2, 1, 'Tom', 'gato', 'mediano', '5 años 7 meses', 'macho', 'Gato tranquilo y cariñoso, ideal para departamento con mallas de seguridad. Esterilizado.', 'Pedro Aguirre Cerda', 'disponible'),
-  (3, 1, 'Haru', 'gato', 'pequeno', '5 años 1 mes', 'macho', 'Muy regalón y curioso. Le encanta dormir al sol y ronronear.', 'Pedro Aguirre Cerda', 'disponible'),
-  (4, 1, 'Kiara', 'perro', 'grande', '1 año 8 meses', 'hembra', 'Pastora mestiza enérgica, ideal para familias activas o casas con patio amplio.', 'Pedro Aguirre Cerda', 'disponible'),
-  (5, 1, 'Oliver', 'gato', 'pequeno', '3 meses', 'macho', 'Cachorrito rescatado de una caja. Muy sociable, desparasitado y comiendo alimento sólido.', 'Pedro Aguirre Cerda', 'disponible'),
+  (1, 1, 'Bizcochito', 'perro', '9 meses', 'cachorro', 'macho', 'mediano', 'Pedro Aguirre Cerda', 'Cachorro sociable, juguetón y con sus vacunas al día. Se lleva excelente con otros perros.', 'disponible'),
+  (2, 1, 'Tom', 'gato', '5 años 7 meses', 'adulto', 'macho', 'mediano', 'Pedro Aguirre Cerda', 'Gato tranquilo y cariñoso, ideal para departamento con mallas de seguridad. Esterilizado.', 'disponible'),
+  (3, 1, 'Haru', 'gato', '5 años 1 mes', 'adulto', 'macho', 'pequeno', 'Pedro Aguirre Cerda', 'Muy regalón y curioso. Le encanta dormir al sol y ronronear.', 'disponible'),
+  (4, 1, 'Kiara', 'perro', '1 año 8 meses', 'joven', 'hembra', 'grande', 'Pedro Aguirre Cerda', 'Pastora mestiza enérgica, ideal para familias activas o casas con patio amplio.', 'disponible'),
+  (5, 1, 'Oliver', 'gato', '3 meses', 'cachorro', 'macho', 'pequeno', 'Pedro Aguirre Cerda', 'Cachorrito rescatado de una caja. Muy sociable, desparasitado y comiendo alimento sólido.', 'disponible'),
 
   -- Fundación Garras y Huellas (Santiago / Providencia)
-  (6, 2, 'Luna', 'perro', 'pequeno', '2 años', 'hembra', 'Perrita mestiza faldera, muy dulce y de tamaño pequeño. Se adapta perfecto a departamentos.', 'Santiago', 'disponible'),
-  (7, 2, 'Rocky', 'perro', 'grande', '3 años', 'macho', 'Perro noble y obediente, le gusta salir a caminar y correr en parques. Sabe pasear con correa.', 'Santiago', 'disponible'),
-  (8, 2, 'Misi', 'gato', 'pequeno', '8 meses', 'hembra', 'Gatita tricolor juguetona, adora los juguetes con plumas y los rascadores.', 'Santiago', 'disponible'),
-  (9, 2, 'Canela', 'perro', 'mediano', '1 año 4 meses', 'hembra', 'Perrita rescatada de la calle, muy agradecida y regalona. Muy buena con niños.', 'Providencia', 'disponible'),
-  (10, 2, 'Simón', 'gato', 'grande', '4 años', 'macho', 'Gato atigrado corpulento pero muy dócil. Duerme la mayor parte de la tarde y pide cariño suavemente.', 'Providencia', 'disponible'),
+  (6, 2, 'Luna', 'perro', '2 años', 'joven', 'hembra', 'pequeno', 'Santiago', 'Perrita mestiza faldera, muy dulce y de tamaño pequeño. Se adapta perfecto a departamentos.', 'disponible'),
+  (7, 2, 'Rocky', 'perro', '3 años', 'joven', 'macho', 'grande', 'Santiago', 'Perro noble y obediente, le gusta salir a caminar y correr en parques. Sabe pasear con correa.', 'disponible'),
+  (8, 2, 'Misi', 'gato', '8 meses', 'cachorro', 'hembra', 'pequeno', 'Santiago', 'Gatita tricolor juguetona, adora los juguetes con plumas y los rascadores.', 'disponible'),
+  (9, 2, 'Canela', 'perro', '1 año 4 meses', 'joven', 'hembra', 'mediano', 'Providencia', 'Perrita rescatada de la calle, muy agradecida y regalona. Muy buena con niños.', 'disponible'),
+  (10, 2, 'Simón', 'gato', '4 años', 'adulto', 'macho', 'grande', 'Providencia', 'Gato atigrado corpulento pero muy dócil. Duerme la mayor parte de la tarde y pide cariño suavemente.', 'disponible'),
 
   -- Corporación Protección Callejeros (Ñuñoa / La Florida / Las Condes)
-  (11, 3, 'Thor', 'perro', 'grande', '5 años', 'macho', 'Mestizo de labrador fuerte y leal. Protector de su hogar y excelente compañero de vida.', 'Ñuñoa', 'disponible'),
-  (12, 3, 'Mia', 'gato', 'pequeno', '6 meses', 'hembra', 'Gatita carey rescatada de colonia urbana. Desparasitada y lista para encontrar un hogar definitivo.', 'Ñuñoa', 'disponible'),
-  (13, 3, 'Pelusa', 'gato', 'mediano', '2 años 3 meses', 'hembra', 'Gata blanca de pelaje suave y ojos verdes. Muy silenciosa y respetuosa con los muebles.', 'Ñuñoa', 'disponible'),
-  (14, 3, 'Bruno', 'perro', 'mediano', '7 años', 'macho', 'Perro senior muy tranquilo y sabio. Solo busca una cama cómoda y compañía cariñosa.', 'La Florida', 'disponible'),
-  (15, 3, 'Daisy', 'perro', 'pequeno', '4 años', 'hembra', 'Perrita de contextura chica, sociable con gatos y niños. Vacunada al día.', 'Las Condes', 'disponible')
+  (11, 3, 'Thor', 'perro', '5 años', 'adulto', 'macho', 'grande', 'Ñuñoa', 'Mestizo de labrador fuerte y leal. Protector de su hogar y excelente compañero de vida.', 'disponible'),
+  (12, 3, 'Mia', 'gato', '6 meses', 'cachorro', 'hembra', 'pequeno', 'Ñuñoa', 'Gatita carey rescatada de colonia urbana. Desparasitada y lista para encontrar un hogar definitivo.', 'disponible'),
+  (13, 3, 'Pelusa', 'gato', '2 años 3 meses', 'joven', 'hembra', 'mediano', 'Ñuñoa', 'Gata blanca de pelaje suave y ojos verdes. Muy silenciosa y respetuosa con los muebles.', 'disponible'),
+  (14, 3, 'Bruno', 'perro', '9 años', 'senior', 'macho', 'mediano', 'La Florida', 'Perro senior muy tranquilo y sabio. Solo busca una cama cómoda y compañía cariñosa.', 'disponible'),
+  (15, 3, 'Daisy', 'perro', '4 años', 'adulto', 'hembra', 'pequeno', 'Las Condes', 'Perrita de contextura chica, sociable con gatos y niños. Vacunada al día.', 'disponible')
 ON DUPLICATE KEY UPDATE
   fundacion_id = VALUES(fundacion_id),
   nombre = VALUES(nombre),
   especie = VALUES(especie),
-  tamano = VALUES(tamano),
   edad_aprox = VALUES(edad_aprox),
+  rango_edad = VALUES(rango_edad),
   sexo = VALUES(sexo),
-  descripcion = VALUES(descripcion),
+  tamano = VALUES(tamano),
   comuna = VALUES(comuna),
+  descripcion = VALUES(descripcion),
   estado = VALUES(estado);
 
 -- ---------------------------------------------------------------------
