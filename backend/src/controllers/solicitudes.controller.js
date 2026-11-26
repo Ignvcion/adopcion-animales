@@ -300,27 +300,28 @@ async function listarSolicitudesRecibidas(req, res, next) {
  * }
  */
 async function resolverSolicitud(req, res, next) {
-  const conexion = await pool.getConnection();
+  // ── 1. Validaciones de entrada (sin DB) ────────────────────────────────────
+  const solicitudId = Number.parseInt(req.params?.id, 10);
+  if (!Number.isInteger(solicitudId) || solicitudId <= 0) {
+    return res.status(400).json({ error: 'ID de solicitud inválido' });
+  }
+
+  const accion = texto(req.body?.accion).toLowerCase();
+  if (!['aprobar', 'rechazar'].includes(accion)) {
+    return res.status(400).json({ error: "La acción debe ser 'aprobar' o 'rechazar'" });
+  }
+
+  const comentario = texto(req.body?.comentario_fundacion ?? req.body?.comentario);
+  if (accion === 'rechazar' && !comentario) {
+    return res.status(400).json({
+      error: 'Debes indicar un comentario al rechazar una solicitud',
+    });
+  }
+
+  // ── 2. Recién aquí abrimos la conexión ─────────────────────────────────────
+  let conexion;
   try {
-    const solicitudId = Number.parseInt(req.params?.id, 10);
-    if (!Number.isInteger(solicitudId) || solicitudId <= 0) {
-      conexion.release();
-      return res.status(400).json({ error: 'ID de solicitud inválido' });
-    }
-
-    const accion = texto(req.body?.accion).toLowerCase();
-    if (!['aprobar', 'rechazar'].includes(accion)) {
-      conexion.release();
-      return res.status(400).json({ error: "La acción debe ser 'aprobar' o 'rechazar'" });
-    }
-
-    const comentario = texto(req.body?.comentario_fundacion ?? req.body?.comentario);
-    if (accion === 'rechazar' && !comentario) {
-      conexion.release();
-      return res.status(400).json({
-        error: 'Debes indicar un comentario al rechazar una solicitud',
-      });
-    }
+    conexion = await pool.getConnection();
 
     // Verificar que el usuario tiene una fundación aprobada
     const [fundaciones] = await conexion.execute(
@@ -330,7 +331,6 @@ async function resolverSolicitud(req, res, next) {
       [req.usuario.id]
     );
     if (fundaciones.length === 0) {
-      conexion.release();
       return res.status(403).json({
         error: 'Tu fundación no está aprobada o no existe.',
       });
@@ -348,14 +348,12 @@ async function resolverSolicitud(req, res, next) {
       [solicitudId]
     );
     if (solicitudes.length === 0) {
-      conexion.release();
       return res.status(404).json({ error: 'Solicitud no encontrada' });
     }
     const solicitud = solicitudes[0];
 
     // Control de autorización: la solicitud debe pertenecer a un animal de esta fundación
     if (solicitud.fundacion_id !== fundacionId) {
-      conexion.release();
       return res.status(403).json({
         error: 'No tienes permiso para gestionar esta solicitud',
       });
@@ -363,12 +361,12 @@ async function resolverSolicitud(req, res, next) {
 
     // Validar que la solicitud no esté ya resuelta
     if (ESTADOS_RESUELTOS.includes(solicitud.estado)) {
-      conexion.release();
       return res.status(409).json({
         error: `La solicitud ya fue resuelta con estado '${solicitud.estado}' y no puede modificarse`,
       });
     }
 
+    // ── 3. Transacción: escrituras ──────────────────────────────────────────
     const nuevoEstado = accion === 'aprobar' ? 'aprobada' : 'rechazada';
 
     await conexion.beginTransaction();
@@ -426,10 +424,10 @@ async function resolverSolicitud(req, res, next) {
       nuevo_estado: nuevoEstado,
     });
   } catch (error) {
-    await conexion.rollback();
+    if (conexion) await conexion.rollback();
     return next(error);
   } finally {
-    conexion.release();
+    if (conexion) conexion.release();
   }
 }
 
