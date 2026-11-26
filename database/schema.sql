@@ -113,3 +113,151 @@ CREATE TABLE IF NOT EXISTS foto_animal (
     FOREIGN KEY (animal_id) REFERENCES animal (animal_id)
     ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
+-- =====================================================================
+--  Módulo Adopción, Favoritos y Seguimiento (CU21–CU30)
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+--  favorito: animales guardados por un usuario adoptante (CU21–CU22)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS favorito (
+  favorito_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id  INT UNSIGNED NOT NULL,
+  animal_id   INT UNSIGNED NOT NULL,
+  creado_en   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (favorito_id),
+  UNIQUE KEY uq_favorito_usuario_animal (usuario_id, animal_id),
+  KEY idx_favorito_animal (animal_id),
+  CONSTRAINT fk_favorito_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario (usuario_id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_favorito_animal
+    FOREIGN KEY (animal_id) REFERENCES animal (animal_id)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------
+--  solicitud: postulaciones de adopción enviadas por usuarios (CU23–CU26)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS solicitud (
+  solicitud_id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id           INT UNSIGNED NOT NULL,
+  animal_id            INT UNSIGNED NOT NULL,
+  codigo               VARCHAR(20)  NULL,
+  telefono             VARCHAR(20)  NOT NULL,
+  tipo_vivienda        VARCHAR(80)  NOT NULL,
+  experiencia          TEXT         NOT NULL,
+  motivo               TEXT         NOT NULL,
+  otros_animales       TINYINT(1)   NOT NULL DEFAULT 0,
+  compromiso           TINYINT(1)   NOT NULL DEFAULT 1,
+  estado               ENUM('pendiente', 'en_revision', 'aprobada', 'rechazada', 'cancelada', 'completada')
+                                    NOT NULL DEFAULT 'pendiente',
+  comentario_fundacion TEXT         NULL,
+  creado_en            DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (solicitud_id),
+  UNIQUE KEY uq_solicitud_codigo (codigo),
+  KEY idx_solicitud_usuario (usuario_id),
+  KEY idx_solicitud_animal (animal_id),
+  KEY idx_solicitud_estado (estado),
+  CONSTRAINT fk_solicitud_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario (usuario_id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_solicitud_animal
+    FOREIGN KEY (animal_id) REFERENCES animal (animal_id)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------
+--  visita: visitas previas o de seguimiento asociadas a una adopción (CU27)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS visita (
+  visita_id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  solicitud_id       INT UNSIGNED NULL,
+  usuario_id         INT UNSIGNED NOT NULL,
+  animal_id          INT UNSIGNED NOT NULL,
+  tipo               ENUM('pre_adopcion', 'seguimiento') NOT NULL DEFAULT 'pre_adopcion',
+  modalidad          ENUM('presencial', 'videollamada')  NOT NULL DEFAULT 'presencial',
+  fecha_programada   DATETIME     NOT NULL,
+  direccion_o_enlace VARCHAR(255) NULL,
+  estado             ENUM('programada', 'confirmada', 'realizada', 'cancelada', 'reprogramada')
+                                  NOT NULL DEFAULT 'programada',
+  notas              TEXT         NULL,
+  creado_en          DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (visita_id),
+  KEY idx_visita_solicitud (solicitud_id),
+  KEY idx_visita_usuario (usuario_id),
+  KEY idx_visita_animal (animal_id),
+  KEY idx_visita_estado (estado),
+  CONSTRAINT fk_visita_solicitud
+    FOREIGN KEY (solicitud_id) REFERENCES solicitud (solicitud_id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_visita_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario (usuario_id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_visita_animal
+    FOREIGN KEY (animal_id) REFERENCES animal (animal_id)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------
+--  notificacion: avisos internos para usuarios y fundaciones (CU28)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS notificacion (
+  notificacion_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id      INT UNSIGNED NOT NULL,
+  animal_id       INT UNSIGNED NULL,
+  solicitud_id    INT UNSIGNED NULL,
+  tipo            ENUM('solicitud', 'visita', 'adopcion', 'reporte', 'sistema') NOT NULL DEFAULT 'sistema',
+  titulo          VARCHAR(150) NOT NULL,
+  mensaje         TEXT         NOT NULL,
+  leida           TINYINT(1)   NOT NULL DEFAULT 0,
+  leida_en        DATETIME     NULL,
+  creado_en       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (notificacion_id),
+  KEY idx_notificacion_usuario_leida (usuario_id, leida),
+  KEY idx_notificacion_animal (animal_id),
+  KEY idx_notificacion_solicitud (solicitud_id),
+  CONSTRAINT fk_notificacion_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario (usuario_id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_notificacion_animal
+    FOREIGN KEY (animal_id) REFERENCES animal (animal_id)
+    ON DELETE SET NULL,
+  CONSTRAINT fk_notificacion_solicitud
+    FOREIGN KEY (solicitud_id) REFERENCES solicitud (solicitud_id)
+    ON DELETE SET NULL
+) ENGINE = InnoDB;
+
+-- ---------------------------------------------------------------------
+--  reporte: denuncias sobre publicaciones o comportamiento (CU29)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS reporte (
+  reporte_id     INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  usuario_id     INT UNSIGNED NOT NULL,
+  animal_id      INT UNSIGNED NULL,
+  revisado_por   INT UNSIGNED NULL,
+  motivo         ENUM('informacion_falsa', 'maltrato', 'cobro_indebido', 'contenido_inapropiado', 'otro')
+                              NOT NULL DEFAULT 'otro',
+  descripcion    TEXT         NOT NULL,
+  estado         ENUM('pendiente', 'en_revision', 'resuelto', 'descartado') NOT NULL DEFAULT 'pendiente',
+  resolucion     TEXT         NULL,
+  creado_en      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  actualizado_en DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (reporte_id),
+  KEY idx_reporte_usuario (usuario_id),
+  KEY idx_reporte_animal (animal_id),
+  KEY idx_reporte_revisor (revisado_por),
+  KEY idx_reporte_estado (estado),
+  CONSTRAINT fk_reporte_usuario
+    FOREIGN KEY (usuario_id) REFERENCES usuario (usuario_id)
+    ON DELETE CASCADE,
+  CONSTRAINT fk_reporte_animal
+    FOREIGN KEY (animal_id) REFERENCES animal (animal_id)
+    ON DELETE SET NULL,
+  CONSTRAINT fk_reporte_revisor
+    FOREIGN KEY (revisado_por) REFERENCES usuario (usuario_id)
+    ON DELETE SET NULL
+) ENGINE = InnoDB;

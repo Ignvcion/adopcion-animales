@@ -1,21 +1,33 @@
 import { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { pedir } from '../api/cliente.js';
+import { useAuth } from '../context/AuthContext.jsx';
 import './FormularioSolicitud.css';
 
-// Boceto visual para el caso de uso CU23 (Enviar solicitud de adopción).
-// Incluye validación de campos requeridos, formato y estado de confirmación.
-
+// CU23 — Enviar solicitud de adopción.
 const ANIMAL_DEFECTO = {
-  id: 1,
+  animal_id: 1,
   nombre: 'Bizcochito',
-  especie: 'Perro',
-  tamano: 'Mediano',
-  edad: '9 meses',
+  especie: 'perro',
+  tamano: 'mediano',
+  edad_aprox: '9 meses',
   comuna: 'Pedro Aguirre Cerda',
-  fundacion: 'Refugio Esperanza Animal',
+  fundacion_nombre: 'Refugio Esperanza Animal',
   foto_url: '/animales/bizcochito.jpeg',
 };
 
-export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancelar, onEnviarExitoso }) {
+const TELEFONO_VALIDO = /^\+?[0-9 ]{8,15}$/;
+
+export default function FormularioSolicitud({ animal: animalProp, onCancelar, onEnviarExitoso }) {
+  const { token, usuario } = useAuth();
+  const ubicacion = useLocation();
+  const navegar = useNavigate();
+
+  const animal = animalProp ?? ubicacion.state?.animal ?? ANIMAL_DEFECTO;
+  const animalId = animal.animal_id ?? animal.id;
+  const edadAnimal = animal.edad_aprox ?? animal.edad ?? '';
+  const fundacionAnimal = animal.fundacion_nombre ?? animal.fundacion ?? 'Fundación Responsable';
+
   const [formulario, setFormulario] = useState({
     telefono: '',
     tipoVivienda: '',
@@ -26,9 +38,10 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
   });
 
   const [errores, setErrores] = useState({});
+  const [errorServidor, setErrorServidor] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
-  const [codigoSolicitud, setCodigoSolicitud] = useState('');
+  const [solicitudCreada, setSolicitudCreada] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,9 +50,11 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
       [name]: type === 'checkbox' ? checked : value,
     }));
 
-    // Limpia el error del campo al escribir
     if (errores[name]) {
       setErrores((prev) => ({ ...prev, [name]: null }));
+    }
+    if (errorServidor) {
+      setErrorServidor('');
     }
   };
 
@@ -48,7 +63,7 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
 
     if (!formulario.telefono.trim()) {
       nuevosErrores.telefono = 'Ingresa un teléfono de contacto.';
-    } else if (!/^[0-9+ ]{8,15}$/.test(formulario.telefono.trim())) {
+    } else if (!TELEFONO_VALIDO.test(formulario.telefono.trim())) {
       nuevosErrores.telefono = 'Formato inválido (ej: +56 9 1234 5678).';
     }
 
@@ -73,31 +88,56 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
     return nuevosErrores;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const nuevosErrores = validar();
+    setErrorServidor('');
 
+    const nuevosErrores = validar();
     if (Object.keys(nuevosErrores).length > 0) {
       setErrores(nuevosErrores);
       return;
     }
 
-    setEnviando(true);
+    if (!usuario || !token) {
+      navegar('/login', {
+        state: {
+          desde: ubicacion.pathname,
+          aviso: 'Inicia sesión para enviar tu solicitud de adopción.',
+        },
+      });
+      return;
+    }
 
-    // Simulación de envío (boceto visual sin conexión al backend)
-    setTimeout(() => {
-      setEnviando(false);
+    setEnviando(true);
+    try {
+      const respuesta = await pedir('/solicitudes', {
+        metodo: 'POST',
+        token,
+        cuerpo: {
+          animal_id: animalId,
+          telefono: formulario.telefono.trim(),
+          tipo_vivienda: formulario.tipoVivienda,
+          experiencia: formulario.experiencia.trim(),
+          motivo: formulario.motivo.trim(),
+          otros_animales: formulario.otrosAnimales,
+          compromiso: formulario.compromiso,
+        },
+      });
+
+      setSolicitudCreada(respuesta.solicitud);
       setConfirmado(true);
-      const codigo = `SOL-${Math.floor(1000 + Math.random() * 9000)}`;
-      setCodigoSolicitud(codigo);
-      if (onEnviarExitoso) onEnviarExitoso(codigo);
-    }, 700);
+      onEnviarExitoso?.(respuesta.solicitud);
+    } catch (error) {
+      setErrorServidor(error.message);
+    } finally {
+      setEnviando(false);
+    }
   };
 
   // -------------------------------------------------------------------
   // Vista de confirmación (éxito)
   // -------------------------------------------------------------------
-  if (confirmado) {
+  if (confirmado && solicitudCreada) {
     return (
       <section className="solicitud-contenedor">
         <div className="solicitud-card solicitud-confirmacion">
@@ -105,43 +145,41 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
           <h2>¡Solicitud enviada con éxito!</h2>
           <p>
             Tu postulación para adoptar a <strong>{animal.nombre}</strong> fue recibida
-            por <strong>{animal.fundacion || 'la fundación'}</strong>. Te contactarán
+            por <strong>{solicitudCreada.fundacion_nombre || fundacionAnimal}</strong>. Te contactarán
             dentro de 48 a 72 horas hábiles.
           </p>
 
           <dl className="solicitud-confirmacion__resumen">
             <dt>Código de seguimiento</dt>
-            <dd><strong>{codigoSolicitud}</strong></dd>
+            <dd><strong>{solicitudCreada.codigo}</strong></dd>
 
             <dt>Teléfono de contacto registrado</dt>
-            <dd>{formulario.telefono}</dd>
+            <dd>{solicitudCreada.telefono}</dd>
 
             <dt>Tipo de vivienda indicada</dt>
-            <dd>{formulario.tipoVivienda}</dd>
+            <dd>{solicitudCreada.tipo_vivienda}</dd>
 
             <dt>Estado inicial</dt>
             <dd style={{ color: 'var(--color-primario)', fontWeight: 600 }}>Pendiente de revisión</dd>
           </dl>
 
-          <div className="solicitud-acciones" style={{ justifyContent: 'center' }}>
-            <button
-              type="button"
-              className="boton"
-              onClick={() => {
-                setConfirmado(false);
-                setFormulario({
-                  telefono: '',
-                  tipoVivienda: '',
-                  experiencia: '',
-                  motivo: '',
-                  otrosAnimales: 'no',
-                  compromiso: false,
-                });
-                if (onCancelar) onCancelar();
-              }}
-            >
-              Nueva postulación / Volver
-            </button>
+          <div className="solicitud-acciones" style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/solicitudes" className="boton">
+              Ver mis solicitudes
+            </Link>
+            {onCancelar ? (
+              <button
+                type="button"
+                className="boton-secundario"
+                onClick={onCancelar}
+              >
+                Volver
+              </button>
+            ) : (
+              <Link to="/favoritos" className="boton-secundario">
+                Ir a mis favoritos
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -163,10 +201,10 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
         <div className="solicitud-resumen-animal__info">
           <h2>Postular a la adopción de {animal.nombre}</h2>
           <p className="solicitud-resumen-animal__detalles">
-            {animal.especie} · {animal.tamano} · {animal.edad} · {animal.comuna}
+            {animal.especie} · {animal.tamano} · {edadAnimal} · {animal.comuna}
           </p>
           <p className="solicitud-resumen-animal__fundacion">
-            Organizado por: {animal.fundacion || 'Fundación Responsable'}
+            Organizado por: {fundacionAnimal}
           </p>
         </div>
       </div>
@@ -179,6 +217,12 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
             evalúa las postulaciones para asegurar el bienestar y compatibilidad del animal.
           </p>
         </header>
+
+        {errorServidor && (
+          <p className="alerta-error" role="alert" style={{ marginBottom: '1.25rem' }}>
+            {errorServidor}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} noValidate>
           {/* Teléfono de contacto */}
@@ -324,7 +368,7 @@ export default function FormularioSolicitud({ animal = ANIMAL_DEFECTO, onCancela
               className="boton"
               disabled={enviando}
             >
-              {enviando ? 'Enviando solicitud...' : 'Enviar Solicitud de Adopción'}
+              {enviando ? 'Enviando solicitud…' : 'Enviar Solicitud de Adopción'}
             </button>
           </div>
         </form>

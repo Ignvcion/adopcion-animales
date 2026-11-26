@@ -17,15 +17,20 @@ export default function Panel() {
       <h1>Hola, {usuario.nombre}</h1>
       <p className="subtitulo">Entraste como {NOMBRE_ROL[usuario.rol] ?? usuario.rol}.</p>
 
-      {/* Módulo Adopción y Seguimiento (CU21–CU30) */}
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Adopciones y Solicitudes</h2>
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-          <Link to="/solicitud-demo" className="boton">
-            Boceto: Formulario de Solicitud (CU23)
-          </Link>
+      {/* Módulo Adopción y Seguimiento (CU21–CU24) */}
+      {usuario.rol === 'adoptante' && (
+        <div style={{ marginTop: '2rem' }}>
+          <h2>Adopciones y Solicitudes</h2>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <Link to="/favoritos" className="boton">
+              Mis favoritos
+            </Link>
+            <Link to="/solicitudes" className="boton">
+              Mis solicitudes
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 }
