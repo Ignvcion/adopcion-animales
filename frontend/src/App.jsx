@@ -9,6 +9,7 @@ import RegistroFundacion from './pages/RegistroFundacion.jsx';
 import RecuperarContrasena from './pages/RecuperarContrasena.jsx';
 import Panel from './pages/Panel.jsx';
 import Perfil from './pages/Perfil.jsx';
+import AdminFundaciones from './pages/AdminFundaciones.jsx';
 import MisFavoritos from './pages/MisFavoritos.jsx';
 import MisSolicitudes from './pages/MisSolicitudes.jsx';
 import GestionFotos from './pages/GestionFotos.jsx';
@@ -43,6 +44,11 @@ export default function App() {
         {/* Exclusivas para fundaciones */}
         <Route element={<RutaProtegida roles={['fundacion']} />}>
           <Route path="/panel/fotos" element={<GestionFotos />} />
+        </Route>
+
+        {/* Módulo Administración (CU07–CU09) */}
+        <Route element={<RutaProtegida roles={['admin']} />}>
+          <Route path="/admin/fundaciones" element={<AdminFundaciones />} />
         </Route>
 
         <Route path="*" element={<NoEncontrada />} />

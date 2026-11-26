@@ -155,6 +155,35 @@ button, input, select, textarea { font: inherit; }
   font-size: 0.95rem;
 }
 
+/* Administración */
+.seccion-panel { margin-top: 2rem; }
+.acciones { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1rem; }
+.filtros-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0; }
+.chip {
+  border: 1px solid var(--color-borde);
+  background: var(--color-tarjeta);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+}
+.chip-activo { background: var(--color-primario); border-color: var(--color-primario); color: #fff; }
+.lista-admin { display: grid; gap: 1rem; }
+.tarjeta-admin { padding: 1.25rem 1.5rem; }
+.tarjeta-admin__cabecera { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.tarjeta-admin__cabecera h2 { margin: 0; font-size: 1.2rem; }
+.estado { padding: 0.2rem 0.7rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+.estado-pendiente { background: #fff4d6; color: #8a5a00; }
+.estado-aprobada, .estado-activo { background: #eaf6ef; color: var(--color-exito); }
+.estado-rechazada, .estado-bloqueado { background: var(--color-error-fondo); color: var(--color-error); }
+.boton-secundario { background: var(--color-tarjeta); color: var(--color-texto); border: 1px solid var(--color-borde); }
+.boton-secundario:hover { background: var(--color-fondo); }
+.boton-peligro { background: var(--color-error); }
+.boton-peligro:hover { background: #8f1c13; }
+.formulario-rechazo { margin-top: 1rem; }
+.formulario-rechazo label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
+.formulario-rechazo textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--color-borde); border-radius: 10px; }
+.vacio { color: var(--color-suave); text-align: center; padding: 2rem 0; }
+
 @media (max-width: 600px) {
   .barra { padding: 0.75rem 1rem; }
   .contenido { padding: 1.25rem 1rem; }
