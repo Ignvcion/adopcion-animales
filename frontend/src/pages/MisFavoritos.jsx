@@ -37,7 +37,7 @@ export default function MisFavoritos() {
   }
 
   function irAPostular(animal) {
-    navegar('/solicitar', { state: { animal } });
+    navegar(`/solicitar?animal=${animal.animal_id ?? animal.id}`, { state: { animal } });
   }
 
   return (

@@ -1,0 +1,12 @@
+{
+  "name": "adopcion-animales",
+  "private": true,
+  "description": "Script de despliegue: instala backend y frontend, compila la página y levanta un solo servidor.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm install --prefix backend --omit=dev && npm install --prefix frontend --include=dev && npm run build --prefix frontend",
+    "start": "node backend/scripts/prepararBase.js && node backend/src/server.js"
+  }
+}

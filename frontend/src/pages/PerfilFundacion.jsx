@@ -129,7 +129,7 @@ export default function PerfilFundacion() {
                     width: '100%',
                     height: '190px',
                     borderRadius: '8px',
-                    background: '#f4eee7',
+                    background: 'var(--color-fondo-suave)',
                     display: 'grid',
                     placeItems: 'center',
                     color: 'var(--color-suave)',

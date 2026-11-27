@@ -1,11 +1,23 @@
 // Configuración de Express: middlewares, rutas y manejo de errores.
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 
 const app = express();
 
-app.use(helmet());
+// Política de seguridad: permite las fuentes de Google Fonts y fotos externas (https)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      'font-src': ["'self'", 'https://fonts.gstatic.com', 'data:'],
+      'img-src': ["'self'", 'data:', 'blob:', 'https:'],
+    },
+  },
+}));
 app.use(cors({
   origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : true,
 }));
@@ -34,6 +46,16 @@ app.use('/api/historias', require('./routes/historias.routes'));
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
+
+// En producción el mismo servidor entrega la página ya compilada (frontend/dist).
+// Cualquier ruta que no sea de la API devuelve index.html para que React Router la resuelva.
+const carpetaFrontend = path.join(__dirname, '..', '..', 'frontend', 'dist');
+if (fs.existsSync(carpetaFrontend)) {
+  app.use(express.static(carpetaFrontend));
+  app.get(/^\/(?!api\/).*/, (req, res) => {
+    res.sendFile(path.join(carpetaFrontend, 'index.html'));
+  });
+}
 
 // Errores no controlados: se registran y se responde un mensaje genérico
 // eslint-disable-next-line no-unused-vars

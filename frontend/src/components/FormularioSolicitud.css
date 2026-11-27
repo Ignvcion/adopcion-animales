@@ -22,7 +22,7 @@
   height: 90px;
   border-radius: 10px;
   object-fit: cover;
-  background-color: #f1ede8;
+  background-color: var(--color-fondo-suave);
   border: 1px solid var(--color-borde);
   flex-shrink: 0;
 }
@@ -137,7 +137,7 @@
 
 /* Campo de compromiso (checkbox) */
 .solicitud-campo-checkbox {
-  background: #fbf9f6;
+  background: var(--color-fondo-suave);
   border: 1px solid var(--color-borde);
   border-radius: 10px;
   padding: 1rem;
@@ -185,7 +185,7 @@
 }
 
 .boton-secundario:hover {
-  background: #f0eae3;
+  background: var(--color-fondo-suave);
   color: var(--color-texto);
 }
 
@@ -199,7 +199,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background-color: #eaf6ee;
+  background-color: var(--color-exito-fondo);
   color: var(--color-exito);
   display: flex;
   align-items: center;
@@ -223,7 +223,7 @@
 
 .solicitud-confirmacion__resumen {
   text-align: left;
-  background: #faf6f1;
+  background: var(--color-fondo-suave);
   border: 1px dashed var(--color-borde);
   border-radius: 10px;
   padding: 1.25rem;
