@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
+const IMAGEN_PLACEHOLDER = '/sin-foto-animal.svg';
+
 const ETIQUETA_TAMANO = {
   pequeno: 'Pequeño',
   mediano: 'Mediano',
@@ -58,7 +60,7 @@ export default function FichaAnimal() {
         if (!activo) return;
         const datos = resp.animal;
         setAnimal(datos);
-        setFotoActiva(datos.fotos?.[0]?.url || datos.foto_url || '/huella.svg');
+        setFotoActiva(datos.fotos?.[0]?.url || datos.foto_url || IMAGEN_PLACEHOLDER);
 
         if (usuario?.rol === 'adoptante' && token) {
           try {
@@ -176,16 +178,16 @@ export default function FichaAnimal() {
   }
 
   if (cargando) {
-    return <p>Cargando ficha del animal…</p>;
+    return <p className="cargando">Cargando ficha del animal…</p>;
   }
 
   if (error || !animal) {
     return (
       <section>
-        <p className="alerta-error" role="alert" style={{ marginBottom: '1rem' }}>
+        <p className="alerta-error" role="alert">
           {error || 'Animal no encontrado.'}
         </p>
-        <Link to="/" className="boton-secundario">
+        <Link to="/" className="boton boton-secundario boton-espaciado-superior">
           ← Volver al catálogo
         </Link>
       </section>
@@ -194,68 +196,40 @@ export default function FichaAnimal() {
 
   const fotos = animal.fotos?.length > 0
     ? animal.fotos
-    : [{ foto_animal_id: 'default', url: animal.foto_url || '/huella.svg' }];
+    : [{ foto_animal_id: 'default', url: animal.foto_url || IMAGEN_PLACEHOLDER }];
 
+  const usaPlaceholder = fotoActiva === IMAGEN_PLACEHOLDER;
   const estaDisponible = animal.estado === 'disponible';
   const puedeInteractuarAdoptante = !usuario || usuario.rol === 'adoptante';
 
   return (
     <section>
-      <div style={{ marginBottom: '1.25rem' }}>
-        <Link to="/" className="boton-texto">
-          ← Volver al catálogo
-        </Link>
-      </div>
+      <Link to="/" className="boton-texto enlace-volver">
+        ← Volver al catálogo
+      </Link>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '2rem',
-          alignItems: 'start',
-        }}
-      >
+      <div className="ficha-rejilla">
         {/* Galería de fotos */}
-        <div>
+        <div className="ficha-galeria">
           <img
             src={fotoActiva}
-            alt={`Foto principal de ${animal.nombre}`}
-            style={{
-              width: '100%',
-              height: '340px',
-              objectFit: 'cover',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0',
-            }}
+            alt={usaPlaceholder ? `${animal.nombre} sin fotografía` : `Foto principal de ${animal.nombre}`}
+            className={`ficha-foto-principal ${usaPlaceholder ? 'ficha-foto-principal--placeholder' : ''}`}
           />
 
           {fotos.length > 1 && (
-            <div
-              style={{
-                display: 'flex',
-                gap: '0.6rem',
-                marginTop: '0.75rem',
-                flexWrap: 'wrap',
-              }}
-            >
+            <div className="ficha-miniaturas">
               {fotos.map((foto, idx) => (
                 <button
                   key={foto.foto_animal_id}
                   type="button"
                   onClick={() => setFotoActiva(foto.url)}
-                  style={{
-                    padding: 0,
-                    border: fotoActiva === foto.url ? '2px solid #2563eb' : '1px solid #cbd5e1',
-                    borderRadius: '8px',
-                    overflow: 'hidden',
-                    cursor: 'pointer',
-                    background: 'transparent',
-                  }}
+                  className={`ficha-miniatura-btn ${fotoActiva === foto.url ? 'ficha-miniatura-btn--activa' : ''}`}
                 >
                   <img
                     src={foto.url}
                     alt={`${animal.nombre} miniatura ${idx + 1}`}
-                    style={{ width: '72px', height: '56px', objectFit: 'cover', display: 'block' }}
+                    className="ficha-miniatura-img"
                   />
                 </button>
               ))}
@@ -264,126 +238,62 @@ export default function FichaAnimal() {
         </div>
 
         {/* Información detallada */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <h1 style={{ margin: 0 }}>{animal.nombre}</h1>
+        <div className="ficha-info">
+          <div className="ficha-cabecera">
+            <h1 className="ficha-titulo">{animal.nombre}</h1>
             <span
-              style={{
-                fontSize: '0.85rem',
-                padding: '0.2rem 0.65rem',
-                borderRadius: '999px',
-                background: estaDisponible ? '#dcfce7' : '#fef3c7',
-                color: estaDisponible ? '#166534' : '#92400e',
-                fontWeight: 600,
-              }}
+              className={`ficha-estado ${
+                estaDisponible ? 'ficha-estado--disponible' : 'ficha-estado--no-disponible'
+              }`}
             >
               {animal.estado.replace('_', ' ')}
             </span>
           </div>
 
-          <p className="subtitulo" style={{ marginTop: '0.4rem' }}>
+          <p className="subtitulo ficha-subtitulo">
             {animal.especie}
             {animal.raza ? ` · ${animal.raza}` : ''} · {animal.comuna}
           </p>
 
-          <dl
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, minmax(130px, 1fr))',
-              gap: '0.75rem',
-              marginTop: '1.25rem',
-              padding: '1rem',
-              background: '#f8fafc',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-            }}
-          >
+          <dl className="ficha-datos-grid">
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Edad aproximada</dt>
-              <dd style={{ margin: 0, fontWeight: 600 }}>
+              <dt className="ficha-dato-etiqueta">Edad aproximada</dt>
+              <dd className="ficha-dato-valor">
                 {animal.edad_aprox} ({ETIQUETA_EDAD[animal.rango_edad] || animal.rango_edad})
               </dd>
             </div>
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Tamaño</dt>
-              <dd style={{ margin: 0, fontWeight: 600 }}>
+              <dt className="ficha-dato-etiqueta">Tamaño</dt>
+              <dd className="ficha-dato-valor">
                 {ETIQUETA_TAMANO[animal.tamano] || animal.tamano}
               </dd>
             </div>
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Sexo</dt>
-              <dd style={{ margin: 0, fontWeight: 600, textTransform: 'capitalize' }}>
+              <dt className="ficha-dato-etiqueta">Sexo</dt>
+              <dd className="ficha-dato-valor ficha-dato-valor--capitalizado">
                 {animal.sexo}
               </dd>
             </div>
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Comuna</dt>
-              <dd style={{ margin: 0, fontWeight: 600 }}>{animal.comuna}</dd>
+              <dt className="ficha-dato-etiqueta">Comuna</dt>
+              <dd className="ficha-dato-valor">{animal.comuna}</dd>
             </div>
           </dl>
 
-          <div style={{ marginTop: '1.25rem' }}>
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>Sobre {animal.nombre}</h2>
-            <p style={{ lineHeight: 1.6 }}>{animal.descripcion}</p>
-          </div>
-
-          {animal.estado_salud && (
-            <div style={{ marginTop: '1rem' }}>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>Estado de salud</h2>
-              <p style={{ lineHeight: 1.6 }}>{animal.estado_salud}</p>
-            </div>
-          )}
-
-          {animal.requisitos_adopcion && (
-            <div style={{ marginTop: '1rem' }}>
-              <h2 style={{ fontSize: '1.1rem', marginBottom: '0.35rem' }}>Requisitos de adopción</h2>
-              <p style={{ lineHeight: 1.6 }}>{animal.requisitos_adopcion}</p>
-            </div>
-          )}
-
-          {/* Datos de la fundación responsable */}
-          <div
-            style={{
-              marginTop: '1.25rem',
-              padding: '1rem',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-            }}
-          >
-            <h2 style={{ fontSize: '1rem', marginBottom: '0.35rem' }}>
-              Fundación responsable: {animal.fundacion_nombre}
-            </h2>
-            {animal.fundacion_comuna && (
-              <p style={{ margin: '0.2rem 0', fontSize: '0.92rem' }}>
-                Ubicación: {animal.fundacion_comuna}
-              </p>
-            )}
-            {animal.fundacion_telefono && (
-              <p style={{ margin: '0.2rem 0', fontSize: '0.92rem' }}>
-                Teléfono: {animal.fundacion_telefono}
-              </p>
-            )}
-            {animal.fundacion_correo && (
-              <p style={{ margin: '0.2rem 0', fontSize: '0.92rem' }}>
-                Correo: {animal.fundacion_correo}
-              </p>
-            )}
-          </div>
-
           {errorFav && (
-            <p className="alerta-error" role="alert" style={{ marginTop: '0.75rem' }}>
+            <p className="alerta-error" role="alert">
               {errorFav}
             </p>
           )}
 
           {avisoReporte && (
-            <p className="alerta-info" role="status" style={{ marginTop: '0.75rem' }}>
+            <p className="alerta-info" role="status">
               {avisoReporte}
             </p>
           )}
 
           {puedeInteractuarAdoptante && (
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="ficha-acciones-principales">
               <button
                 type="button"
                 className="boton"
@@ -395,7 +305,7 @@ export default function FichaAnimal() {
 
               <button
                 type="button"
-                className="boton-secundario"
+                className="boton boton-secundario"
                 onClick={alternarFavorito}
                 disabled={procesandoFav}
                 aria-pressed={esFavorito}
@@ -406,8 +316,7 @@ export default function FichaAnimal() {
               {usuario?.rol === 'adoptante' && (
                 <button
                   type="button"
-                  className="boton-texto"
-                  style={{ marginLeft: 'auto', fontSize: '0.88rem' }}
+                  className="boton-texto ficha-btn-reportar"
                   onClick={() => {
                     setErrorReporte('');
                     setModalReporte(true);
@@ -418,6 +327,47 @@ export default function FichaAnimal() {
               )}
             </div>
           )}
+
+          <div className="ficha-bloque">
+            <h2 className="ficha-bloque-titulo">Sobre {animal.nombre}</h2>
+            <p className="ficha-parrafo">{animal.descripcion}</p>
+          </div>
+
+          {animal.estado_salud && (
+            <div className="ficha-bloque">
+              <h2 className="ficha-bloque-titulo">Estado de salud</h2>
+              <p className="ficha-parrafo">{animal.estado_salud}</p>
+            </div>
+          )}
+
+          {animal.requisitos_adopcion && (
+            <div className="ficha-bloque">
+              <h2 className="ficha-bloque-titulo">Requisitos de adopción</h2>
+              <p className="ficha-parrafo">{animal.requisitos_adopcion}</p>
+            </div>
+          )}
+
+          {/* Datos de la fundación responsable */}
+          <div className="tarjeta ficha-fundacion">
+            <h2 className="ficha-fundacion-titulo">
+              Fundación responsable:{' '}
+              <Link
+                to={`/fundaciones/${animal.fundacion_id}`}
+                className="ficha-fundacion-enlace"
+              >
+                {animal.fundacion_nombre}
+              </Link>
+            </h2>
+            {animal.fundacion_comuna && (
+              <p className="ficha-fundacion-dato">Ubicación: {animal.fundacion_comuna}</p>
+            )}
+            {animal.fundacion_telefono && (
+              <p className="ficha-fundacion-dato">Teléfono: {animal.fundacion_telefono}</p>
+            )}
+            {animal.fundacion_correo && (
+              <p className="ficha-fundacion-dato">Correo: {animal.fundacion_correo}</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -428,22 +378,22 @@ export default function FichaAnimal() {
           aria-modal="true"
           aria-labelledby="modal-reporte-titulo"
         >
-          <div className="tarjeta modal" style={{ maxWidth: 460 }}>
-            <h2 id="modal-reporte-titulo" style={{ marginTop: 0 }}>
+          <div className="tarjeta modal modal-reporte">
+            <h2 id="modal-reporte-titulo" className="modal-titulo">
               Reportar publicación de {animal.nombre}
             </h2>
-            <p className="subtitulo" style={{ marginBottom: '1rem' }}>
+            <p className="subtitulo modal-subtitulo">
               Si detectaste información engañosa o irregularidades, cuéntanos para revisarlo.
             </p>
 
-            <form onSubmit={manejarEnviarReporte} className="formulario" style={{ margin: 0, maxWidth: '100%' }}>
+            <form onSubmit={manejarEnviarReporte} className="formulario formulario-modal">
               <label htmlFor="reporte-motivo">Motivo del reporte</label>
               <select
                 id="reporte-motivo"
                 value={motivoReporte}
                 onChange={(e) => setMotivoReporte(e.target.value)}
                 disabled={enviandoReporte}
-                style={{ width: '100%', padding: '0.65rem 0.8rem', border: '1px solid var(--color-borde)', borderRadius: '10px', background: '#fff' }}
+                className="campo-select"
               >
                 {MOTIVOS_REPORTE.map((m) => (
                   <option key={m.valor} value={m.valor}>
@@ -470,7 +420,7 @@ export default function FichaAnimal() {
                 </p>
               )}
 
-              <div className="acciones" style={{ marginTop: '1.25rem' }}>
+              <div className="acciones modal-acciones">
                 <button type="submit" className="boton boton-peligro" disabled={enviandoReporte}>
                   {enviandoReporte ? 'Enviando…' : 'Enviar reporte'}
                 </button>
