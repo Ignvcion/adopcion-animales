@@ -27,6 +27,7 @@ app.use('/api/favoritos', require('./routes/favoritos.routes'));
 app.use('/api/solicitudes', require('./routes/solicitudes.routes'));
 app.use('/api/visitas', require('./routes/visitas.routes'));
 app.use('/api/notificaciones', require('./routes/notificaciones.routes'));
+app.use('/api/reportes', require('./routes/reportes.routes'));
 
 // Ruta inexistente
 app.use('/api', (req, res) => {
