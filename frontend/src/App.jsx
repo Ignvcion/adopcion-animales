@@ -22,6 +22,7 @@ import PerfilFundacion from './pages/PerfilFundacion.jsx';
 import MisPublicaciones from './pages/MisPublicaciones.jsx';
 import FormularioAnimal from './pages/FormularioAnimal.jsx';
 import Visitas from './pages/Visitas.jsx';
+import Notificaciones from './pages/Notificaciones.jsx';
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
         <Route element={<RutaProtegida />}>
           <Route path="/panel" element={<Panel />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/panel/notificaciones" element={<Notificaciones />} />
         </Route>
 
         {/* Visitas (adoptantes y fundaciones) */}

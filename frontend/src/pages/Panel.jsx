@@ -80,6 +80,16 @@ export default function Panel() {
           </div>
         </div>
       )}
+
+      {/* Notificaciones (CU28) */}
+      <div className="seccion-panel">
+        <h2>Notificaciones</h2>
+        <div className="acciones">
+          <Link to="/panel/notificaciones" className="boton boton-secundario">
+            Ver bandeja de notificaciones
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }

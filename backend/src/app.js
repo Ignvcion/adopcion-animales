@@ -26,6 +26,7 @@ app.use('/api/fundaciones', require('./routes/fundaciones.routes'));
 app.use('/api/favoritos', require('./routes/favoritos.routes'));
 app.use('/api/solicitudes', require('./routes/solicitudes.routes'));
 app.use('/api/visitas', require('./routes/visitas.routes'));
+app.use('/api/notificaciones', require('./routes/notificaciones.routes'));
 
 // Ruta inexistente
 app.use('/api', (req, res) => {
