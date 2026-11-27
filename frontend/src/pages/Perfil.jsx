@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { pedir } from '../api/cliente.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import CambiarContrasena from '../components/CambiarContrasena.jsx';
 
 const TELEFONO_VALIDO = /^\+?[0-9 ]{8,15}$/;
 
@@ -103,6 +104,7 @@ export default function Perfil() {
           <button type="button" className="boton ancho" onClick={() => { setEditando(true); setAviso(''); }}>
             Editar mis datos
           </button>
+          <CambiarContrasena />
         </>
       ) : (
         <form onSubmit={guardar} noValidate>
