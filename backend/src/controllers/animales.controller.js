@@ -729,8 +729,72 @@ async function obtenerDetalleAnimal(req, res, next) {
   }
 }
 
+/**
+ * GET /api/animales/mis-publicaciones (CU19)
+ * Lista todos los animales de la fundación autenticada (con filtro opcional ?estado=).
+ */
+async function listarMisPublicaciones(req, res, next) {
+  try {
+    const fundacion = await obtenerFundacionAprobada(req.usuario.id);
+    if (!fundacion || fundacion.estado !== 'aprobada') {
+      return res.status(403).json({
+        error: 'Tu fundación debe estar aprobada para ver tus publicaciones',
+      });
+    }
+
+    const estado = texto(req.query?.estado).toLowerCase();
+    if (estado && !ESTADOS_VALIDOS.includes(estado)) {
+      return res.status(400).json({
+        error: 'El estado debe ser disponible, en_proceso, adoptado o archivado',
+      });
+    }
+
+    const condiciones = ['a.fundacion_id = ?'];
+    const parametros = [fundacion.fundacion_id];
+
+    if (estado) {
+      condiciones.push('a.estado = ?');
+      parametros.push(estado);
+    }
+
+    const [filas] = await pool.execute(
+      `SELECT a.animal_id,
+              a.fundacion_id,
+              a.nombre,
+              a.especie,
+              a.raza,
+              a.edad_aprox,
+              a.rango_edad,
+              a.sexo,
+              a.tamano,
+              a.comuna,
+              a.descripcion,
+              a.estado_salud,
+              a.requisitos_adopcion,
+              a.estado,
+              a.creado_en,
+              (
+                SELECT fa.url
+                  FROM foto_animal fa
+                 WHERE fa.animal_id = a.animal_id
+                 ORDER BY fa.es_principal DESC, fa.orden ASC, fa.foto_animal_id ASC
+                 LIMIT 1
+              ) AS foto_url
+         FROM animal a
+        WHERE ${condiciones.join(' AND ')}
+        ORDER BY a.creado_en DESC, a.animal_id DESC`,
+      parametros
+    );
+
+    return res.json({ animales: filas });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   listarCatalogoAnimales,
+  listarMisPublicaciones,
   listarFotosAnimal,
   obtenerDetalleAnimal,
   publicarAnimal,
