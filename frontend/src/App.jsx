@@ -18,6 +18,9 @@ import GestionFotos from './pages/GestionFotos.jsx';
 import SolicitudesFundacion from './pages/SolicitudesFundacion.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
 import FichaAnimal from './pages/FichaAnimal.jsx';
+import PerfilFundacion from './pages/PerfilFundacion.jsx';
+import MisPublicaciones from './pages/MisPublicaciones.jsx';
+import FormularioAnimal from './pages/FormularioAnimal.jsx';
 
 export default function App() {
   return (
@@ -26,6 +29,7 @@ export default function App() {
         {/* Públicas */}
         <Route path="/" element={<Inicio />} />
         <Route path="/animales/:id" element={<FichaAnimal />} />
+        <Route path="/fundaciones/:id" element={<PerfilFundacion />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/registro-fundacion" element={<RegistroFundacion />} />
@@ -47,6 +51,9 @@ export default function App() {
         {/* Exclusivas para fundaciones */}
         <Route element={<RutaProtegida roles={['fundacion']} />}>
           <Route path="/panel/fotos" element={<GestionFotos />} />
+          <Route path="/panel/publicaciones" element={<MisPublicaciones />} />
+          <Route path="/panel/publicaciones/nueva" element={<FormularioAnimal />} />
+          <Route path="/panel/publicaciones/:id/editar" element={<FormularioAnimal />} />
           <Route path="/panel/solicitudes" element={<SolicitudesFundacion />} />
         </Route>
 

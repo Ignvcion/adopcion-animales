@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
 // CU14 — Subir y ordenar fotos del animal (rol: fundación)
 export default function GestionFotos() {
-  const { usuario, token } = useAuth();
+  const { token } = useAuth();
+  const [searchParams] = useSearchParams();
+  const animalPreseleccionado = searchParams.get('animal');
 
   const [animales, setAnimales] = useState([]);
   const [animalId, setAnimalId] = useState('');
@@ -24,19 +27,20 @@ export default function GestionFotos() {
       setCargando(true);
       setError('');
       try {
-        const resp = await pedir('/animales');
+        const resp = await pedir('/animales/mis-publicaciones', { token });
         if (!activo) return;
-        const todos = resp.animales || [];
-        const propios = todos.filter(
-          (a) => a.fundacion_nombre === usuario?.nombre
-        );
-        const lista = propios.length > 0 ? propios : todos;
+        const lista = resp.animales || [];
         setAnimales(lista);
         if (lista.length > 0) {
-          setAnimalId(String(lista[0].animal_id));
+          const existePreseleccionado = lista.some(
+            (a) => String(a.animal_id) === String(animalPreseleccionado)
+          );
+          setAnimalId(
+            existePreseleccionado ? String(animalPreseleccionado) : String(lista[0].animal_id)
+          );
         }
       } catch (err) {
-        if (activo) setError(err.message || 'Error al cargar animales.');
+        if (activo) setError(err.message || 'Error al cargar los animales de tu fundación.');
       } finally {
         if (activo) setCargando(false);
       }
@@ -46,7 +50,7 @@ export default function GestionFotos() {
     return () => {
       activo = false;
     };
-  }, [usuario]);
+  }, [token, animalPreseleccionado]);
 
   useEffect(() => {
     if (!animalId) {
@@ -148,14 +152,14 @@ export default function GestionFotos() {
       </p>
 
       {cargando ? (
-        <p>Cargando animales…</p>
+        <p className="cargando">Cargando animales…</p>
       ) : animales.length === 0 ? (
         <p>No tienes animales publicados aún.</p>
       ) : (
         <>
           <div style={{ marginTop: '1.25rem', maxWidth: '420px' }}>
             <label htmlFor="selector-animal" style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
-              Selecciona un animal
+              Selecciona un animal de tu fundación
             </label>
             <select
               id="selector-animal"
@@ -165,7 +169,7 @@ export default function GestionFotos() {
                 setMensaje('');
                 setError('');
               }}
-              style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+              style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid var(--color-borde)', background: '#fff' }}
             >
               {animales.map((a) => (
                 <option key={a.animal_id} value={a.animal_id}>
@@ -177,15 +181,10 @@ export default function GestionFotos() {
 
           <form
             onSubmit={manejarAgregarFoto}
-            style={{
-              marginTop: '1.5rem',
-              padding: '1rem',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              maxWidth: '540px',
-            }}
+            className="tarjeta"
+            style={{ marginTop: '1.5rem', maxWidth: '540px' }}
           >
-            <h2 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>
+            <h2 style={{ fontSize: '1.1rem', marginTop: 0, marginBottom: '0.75rem' }}>
               Agregar nueva foto ({fotos.length}/5)
             </h2>
 
@@ -197,7 +196,7 @@ export default function GestionFotos() {
                 onChange={(e) => setNuevaUrl(e.target.value)}
                 disabled={procesando || fotos.length >= 5}
                 required
-                style={{ padding: '0.55rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                style={{ padding: '0.55rem', borderRadius: '6px', border: '1px solid var(--color-borde)' }}
               />
 
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
@@ -222,12 +221,12 @@ export default function GestionFotos() {
           </form>
 
           {mensaje && (
-            <p role="status" style={{ color: '#15803d', marginTop: '1rem' }}>
+            <p className="alerta-info" role="status">
               {mensaje}
             </p>
           )}
           {error && (
-            <p role="alert" style={{ color: '#b91c1c', marginTop: '1rem' }}>
+            <p className="alerta-error" role="alert">
               {error}
             </p>
           )}
@@ -248,9 +247,8 @@ export default function GestionFotos() {
                 {fotos.map((foto, idx) => (
                   <article
                     key={foto.foto_animal_id}
+                    className="tarjeta"
                     style={{
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
                       padding: '0.75rem',
                       display: 'flex',
                       flexDirection: 'column',
@@ -265,7 +263,7 @@ export default function GestionFotos() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <strong>#{idx + 1}</strong>
                       {foto.es_principal ? (
-                        <span style={{ fontSize: '0.8rem', background: '#dcfce7', color: '#166534', padding: '0.15rem 0.5rem', borderRadius: '999px' }}>
+                        <span className="estado-badge estado-badge--aprobada">
                           Principal
                         </span>
                       ) : null}
@@ -274,7 +272,7 @@ export default function GestionFotos() {
                     <div style={{ display: 'flex', gap: '0.4rem', marginTop: 'auto' }}>
                       <button
                         type="button"
-                        className="boton boton-chico"
+                        className="boton boton-chico-tabla"
                         onClick={() => moverFoto(idx, -1)}
                         disabled={procesando || idx === 0}
                         title="Subir orden"
@@ -283,7 +281,7 @@ export default function GestionFotos() {
                       </button>
                       <button
                         type="button"
-                        className="boton boton-chico"
+                        className="boton boton-chico-tabla"
                         onClick={() => moverFoto(idx, 1)}
                         disabled={procesando || idx === fotos.length - 1}
                         title="Bajar orden"
@@ -295,7 +293,7 @@ export default function GestionFotos() {
                         className="boton-texto"
                         onClick={() => manejarEliminarFoto(foto.foto_animal_id)}
                         disabled={procesando}
-                        style={{ marginLeft: 'auto', color: '#b91c1c' }}
+                        style={{ marginLeft: 'auto', color: 'var(--color-error)' }}
                       >
                         Eliminar
                       </button>
