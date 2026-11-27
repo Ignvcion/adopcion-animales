@@ -605,3 +605,7 @@ button, input, select, textarea { font: inherit; }
   flex-direction: column;
   gap: 0.2rem;
 }
+@media (max-width: 768px) {
+  .campana-desplegable { position: fixed; top: 4.5rem; left: 1rem; right: 1rem; width: auto; max-width: none; z-index: 120; }
+  .campana-lista { max-height: 55vh; }
+}

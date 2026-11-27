@@ -23,7 +23,9 @@ export default function FormularioSolicitud({ animal: animalProp, onCancelar, on
   const ubicacion = useLocation();
   const navegar = useNavigate();
 
-  const animal = animalProp ?? ubicacion.state?.animal ?? ANIMAL_DEFECTO;
+  if (animalProp || ubicacion.state?.animal) { sessionStorage.setItem('solicitud_animal', JSON.stringify(animalProp ?? ubicacion.state.animal)); }
+  const animalGuardado = (() => { try { return JSON.parse(sessionStorage.getItem('solicitud_animal')); } catch { return null; } })();
+  const animal = animalProp ?? ubicacion.state?.animal ?? animalGuardado ?? ANIMAL_DEFECTO;
   const animalId = animal.animal_id ?? animal.id;
   const edadAnimal = animal.edad_aprox ?? animal.edad ?? '';
   const fundacionAnimal = animal.fundacion_nombre ?? animal.fundacion ?? 'Fundación Responsable';
