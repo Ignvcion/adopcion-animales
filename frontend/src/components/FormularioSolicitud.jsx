@@ -1,29 +1,53 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import './FormularioSolicitud.css';
 
 // CU23 — Enviar solicitud de adopción.
-const ANIMAL_DEFECTO = {
-  animal_id: 1,
-  nombre: 'Bizcochito',
-  especie: 'perro',
-  tamano: 'mediano',
-  edad_aprox: '9 meses',
-  comuna: 'Pedro Aguirre Cerda',
-  fundacion_nombre: 'Refugio Esperanza Animal',
-  foto_url: '/animales/bizcochito.jpeg',
-};
-
 const TELEFONO_VALIDO = /^\+?[0-9 ]{8,15}$/;
 
+// El animal llega por props, por el estado de la navegación o por ?animal=ID en la URL.
+// Así, si la persona recarga la página, la solicitud sigue siendo para el animal correcto.
 export default function FormularioSolicitud({ animal: animalProp, onCancelar, onEnviarExitoso }) {
+  const ubicacion = useLocation();
+  const [parametros] = useSearchParams();
+  const animalInicial = animalProp ?? ubicacion.state?.animal ?? null;
+  const idUrl = parametros.get('animal');
+
+  const [animal, setAnimal] = useState(animalInicial);
+  const [errorCarga, setErrorCarga] = useState('');
+
+  useEffect(() => {
+    if (animalInicial || !idUrl) return;
+    pedir(`/animales/${idUrl}`)
+      .then((datos) => setAnimal(datos.animal ?? datos))
+      .catch(() => setErrorCarga('No encontramos ese animal. Puede que ya no esté publicado.'));
+  }, [animalInicial, idUrl]);
+
+  if (!animal) {
+    if (idUrl && !errorCarga) return <p className="cargando">Cargando animal…</p>;
+    return (
+      <div className="tarjeta centrada">
+        <h1>Elige un animal primero</h1>
+        <p className="subtitulo">
+          {errorCarga || 'Para postular necesitas abrir la ficha del animal que quieres adoptar.'}
+        </p>
+        <Link to="/" className="boton">Ver animales disponibles</Link>
+      </div>
+    );
+  }
+
+  return (
+    <ContenidoSolicitud animal={animal} onCancelar={onCancelar} onEnviarExitoso={onEnviarExitoso} />
+  );
+}
+
+function ContenidoSolicitud({ animal, onCancelar, onEnviarExitoso }) {
   const { token, usuario } = useAuth();
   const ubicacion = useLocation();
   const navegar = useNavigate();
 
-  const animal = animalProp ?? ubicacion.state?.animal ?? ANIMAL_DEFECTO;
   const animalId = animal.animal_id ?? animal.id;
   const edadAnimal = animal.edad_aprox ?? animal.edad ?? '';
   const fundacionAnimal = animal.fundacion_nombre ?? animal.fundacion ?? 'Fundación Responsable';
@@ -101,7 +125,7 @@ export default function FormularioSolicitud({ animal: animalProp, onCancelar, on
     if (!usuario || !token) {
       navegar('/login', {
         state: {
-          desde: ubicacion.pathname,
+          desde: ubicacion.pathname + ubicacion.search,
           aviso: 'Inicia sesión para enviar tu solicitud de adopción.',
         },
       });

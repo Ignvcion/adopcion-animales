@@ -37,7 +37,7 @@ export default function MisFavoritos() {
   }
 
   function irAPostular(animal) {
-    navegar('/solicitar', { state: { animal } });
+    navegar(`/solicitar?animal=${animal.animal_id ?? animal.id}`, { state: { animal } });
   }
 
   return (
@@ -49,7 +49,7 @@ export default function MisFavoritos() {
             Animales que guardaste para seguir de cerca o iniciar su proceso de adopción.
           </p>
         </div>
-        <Link to="/solicitudes" className="boton-secundario">
+        <Link to="/solicitudes" className="boton boton-secundario">
           Ver mis solicitudes
         </Link>
       </div>
@@ -58,7 +58,7 @@ export default function MisFavoritos() {
 
       {!cargando && error && (
         <div className="alerta-error" role="alert">
-          <p style={{ margin: '0 0 0.5rem' }}>{error}</p>
+          <p className="alerta-error__texto">{error}</p>
           <button type="button" className="boton-texto" onClick={cargarFavoritos}>
             Reintentar
           </button>
@@ -66,13 +66,13 @@ export default function MisFavoritos() {
       )}
 
       {!cargando && !error && favoritos.length === 0 && (
-        <div className="tarjeta centrada">
-          <h2 style={{ marginTop: 0 }}>Aún no tienes animales favoritos</h2>
-          <p className="subtitulo">
-            Guarda los animales que te interesen para compararlos y postular cuando estés listo.
+        <div className="tarjeta estado-vacio">
+          <h2 className="estado-vacio__titulo">Aún no tienes favoritos</h2>
+          <p className="estado-vacio__texto">
+            Aún no tienes favoritos. Explora el catálogo para guardar los animales que te interesen.
           </p>
           <Link to="/" className="boton">
-            Explorar animales
+            Explorar catálogo
           </Link>
         </div>
       )}

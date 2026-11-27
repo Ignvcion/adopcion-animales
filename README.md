@@ -36,6 +36,12 @@ Crear la base y sus tablas en MySQL:
 mysql -u root -p < database/schema.sql
 ```
 
+Opcional: cargar datos de prueba (fundaciones, animales, solicitudes y visitas) para revisar la página con contenido:
+
+```bash
+mysql -u root -p < database/seed_pruebas.sql   # solo con la base recién creada
+```
+
 ### 2. Backend
 
 ```bash
@@ -57,6 +63,13 @@ npm run dev               # página en http://localhost:5173
 ```
 
 El frontend redirige las llamadas a `/api` hacia el backend, así que deben estar corriendo los dos.
+
+## Funcionalidades
+
+- **Visitantes:** catálogo con filtros (especie, tamaño, edad, sexo, comuna), ficha de cada animal, perfil de fundaciones e historias de adopción.
+- **Adoptantes:** registro, favoritos, solicitudes de adopción con seguimiento, agenda de visitas, notificaciones y reportes de publicaciones.
+- **Fundaciones:** registro con RUT, publicación y edición de animales, gestión de fotos, revisión de solicitudes y visitas.
+- **Administración:** validación de fundaciones, gestión de usuarios y panel de estadísticas.
 
 ## Forma de trabajo
 

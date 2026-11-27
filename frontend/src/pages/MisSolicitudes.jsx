@@ -88,13 +88,13 @@ export default function MisSolicitudes() {
       )}
 
       {!cargando && !error && solicitudes.length === 0 && (
-        <div className="tarjeta centrada">
-          <h2 style={{ marginTop: 0 }}>No has enviado solicitudes todavía</h2>
-          <p className="subtitulo">
-            Cuando postules a un animal, podrás seguir aquí el avance de tu solicitud.
+        <div className="tarjeta estado-vacio">
+          <h2 className="estado-vacio__titulo">Aún no has enviado solicitudes</h2>
+          <p className="estado-vacio__texto">
+            Aún no has enviado solicitudes de adopción. Explora el catálogo y postula a tu próximo compañero.
           </p>
-          <Link to="/favoritos" className="boton">
-            Ver mis favoritos
+          <Link to="/" className="boton">
+            Explorar catálogo
           </Link>
         </div>
       )}

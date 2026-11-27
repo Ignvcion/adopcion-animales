@@ -116,23 +116,11 @@ export default function Inicio() {
       <form
         onSubmit={manejarBuscar}
         aria-label="Filtrar animales disponibles"
-        style={{
-          marginTop: '1.75rem',
-          padding: '1rem',
-          border: '1px solid #e2e8f0',
-          borderRadius: '10px',
-          background: '#f8fafc',
-        }}
+        className="filtros"
       >
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-            gap: '0.75rem',
-          }}
-        >
+        <div className="filtros__campos">
           <div>
-            <label htmlFor="filtro-q" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+            <label htmlFor="filtro-q">
               Nombre o raza
             </label>
             <input
@@ -142,12 +130,11 @@ export default function Inicio() {
               placeholder="Ej: Luna, Mestizo"
               value={filtros.q}
               onChange={manejarCambioFiltro}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             />
           </div>
 
           <div>
-            <label htmlFor="filtro-especie" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+            <label htmlFor="filtro-especie">
               Especie
             </label>
             <select
@@ -155,7 +142,6 @@ export default function Inicio() {
               name="especie"
               value={filtros.especie}
               onChange={manejarCambioFiltro}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             >
               <option value="">Todas</option>
               <option value="perro">Perro</option>
@@ -165,7 +151,7 @@ export default function Inicio() {
           </div>
 
           <div>
-            <label htmlFor="filtro-tamano" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+            <label htmlFor="filtro-tamano">
               Tamaño
             </label>
             <select
@@ -173,7 +159,6 @@ export default function Inicio() {
               name="tamano"
               value={filtros.tamano}
               onChange={manejarCambioFiltro}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             >
               <option value="">Todos</option>
               <option value="pequeno">Pequeño</option>
@@ -183,7 +168,7 @@ export default function Inicio() {
           </div>
 
           <div>
-            <label htmlFor="filtro-edad" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+            <label htmlFor="filtro-edad">
               Edad
             </label>
             <select
@@ -191,7 +176,6 @@ export default function Inicio() {
               name="rango_edad"
               value={filtros.rango_edad}
               onChange={manejarCambioFiltro}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             >
               <option value="">Todas</option>
               <option value="cachorro">Cachorro</option>
@@ -202,7 +186,7 @@ export default function Inicio() {
           </div>
 
           <div>
-            <label htmlFor="filtro-sexo" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+            <label htmlFor="filtro-sexo">
               Sexo
             </label>
             <select
@@ -210,7 +194,6 @@ export default function Inicio() {
               name="sexo"
               value={filtros.sexo}
               onChange={manejarCambioFiltro}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             >
               <option value="">Todos</option>
               <option value="macho">Macho</option>
@@ -219,7 +202,7 @@ export default function Inicio() {
           </div>
 
           <div>
-            <label htmlFor="filtro-comuna" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+            <label htmlFor="filtro-comuna">
               Comuna
             </label>
             <input
@@ -229,12 +212,11 @@ export default function Inicio() {
               placeholder="Ej: Maipú, Santiago"
               value={filtros.comuna}
               onChange={manejarCambioFiltro}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }}
             />
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
+        <div className="filtros__acciones">
           <button type="submit" className="boton">
             Filtrar catálogo
           </button>
@@ -250,17 +232,8 @@ export default function Inicio() {
         </div>
       </form>
 
-      <div style={{ marginTop: '2rem' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            marginBottom: '1rem',
-            flexWrap: 'wrap',
-            gap: '0.5rem',
-          }}
-        >
+      <div className="catalogo">
+        <div className="catalogo__cabecera">
           <h2>Animales disponibles para adopción</h2>
           {!cargando && !error && (
             <span className="subtitulo">
@@ -270,16 +243,16 @@ export default function Inicio() {
           )}
         </div>
 
-        {cargando && <p>Cargando catálogo de animales…</p>}
+        {cargando && <p className="cargando">Cargando catálogo de animales…</p>}
 
         {error && (
-          <p role="alert" style={{ color: '#b91c1c' }}>
+          <p role="alert" className="alerta-error">
             {error}
           </p>
         )}
 
         {!cargando && !error && animales.length === 0 && (
-          <p>
+          <p className="catalogo__vacio">
             {hayFiltrosActivos
               ? 'No encontramos animales con esos filtros. Prueba ampliando tu búsqueda.'
               : 'Por el momento no hay animales disponibles en el catálogo.'}
@@ -287,13 +260,7 @@ export default function Inicio() {
         )}
 
         {!cargando && !error && animales.length > 0 && (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))',
-              gap: '1.25rem',
-            }}
-          >
+          <div className="catalogo__grilla">
             {animales.map((animal) => (
               <TarjetaAnimal
                 key={animal.animal_id}

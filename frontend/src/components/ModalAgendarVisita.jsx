@@ -68,23 +68,22 @@ export default function ModalAgendarVisita({ solicitud, onCerrar, onAgendada }) 
       aria-modal="true"
       aria-labelledby="modal-visita-titulo"
     >
-      <div className="tarjeta modal" style={{ maxWidth: 480 }}>
-        <h2 id="modal-visita-titulo" style={{ marginTop: 0 }}>
+      <div className="tarjeta modal modal--amplia">
+        <h2 id="modal-visita-titulo">
           Agendar visita para {solicitud.animal_nombre}
         </h2>
-        <p className="subtitulo" style={{ marginBottom: '1rem' }}>
+        <p className="subtitulo modal__subtitulo">
           {solicitud.codigo ? `Solicitud ${solicitud.codigo} · ` : ''}
           Coordina un encuentro para conocer a {solicitud.animal_nombre}.
         </p>
 
-        <form onSubmit={manejarSubmit} className="formulario" style={{ margin: 0, maxWidth: '100%' }}>
+        <form onSubmit={manejarSubmit} className="formulario formulario--modal">
           <label htmlFor="visita-tipo">Tipo de visita</label>
           <select
             id="visita-tipo"
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
             disabled={enviando}
-            style={{ width: '100%', padding: '0.65rem 0.8rem', border: '1px solid var(--color-borde)', borderRadius: '10px', background: '#fff' }}
           >
             <option value="pre_adopcion">Visita previa a la adopción</option>
             <option value="seguimiento">Visita de seguimiento</option>
@@ -96,7 +95,6 @@ export default function ModalAgendarVisita({ solicitud, onCerrar, onAgendada }) 
             value={modalidad}
             onChange={(e) => setModalidad(e.target.value)}
             disabled={enviando}
-            style={{ width: '100%', padding: '0.65rem 0.8rem', border: '1px solid var(--color-borde)', borderRadius: '10px', background: '#fff' }}
           >
             <option value="presencial">Presencial</option>
             <option value="videollamada">Videollamada</option>
@@ -147,7 +145,7 @@ export default function ModalAgendarVisita({ solicitud, onCerrar, onAgendada }) 
             </p>
           )}
 
-          <div className="acciones" style={{ marginTop: '1.25rem' }}>
+          <div className="acciones acciones--espaciadas">
             <button type="submit" className="boton" disabled={enviando}>
               {enviando ? 'Agendando…' : 'Confirmar agenda'}
             </button>

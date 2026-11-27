@@ -2,19 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { textoEdad, textoEspecie, textoEstado, textoSexo, textoTamano } from '../utils/etiquetas.js';
 
-const ETIQUETA_TAMANO = {
-  pequeno: 'Pequeño',
-  mediano: 'Mediano',
-  grande: 'Grande',
-};
-
-const ETIQUETA_EDAD = {
-  cachorro: 'Cachorro',
-  joven: 'Joven',
-  adulto: 'Adulto',
-  senior: 'Senior',
-};
 
 const MOTIVOS_REPORTE = [
   { valor: 'informacion_falsa', etiqueta: 'Información falsa o engañosa' },
@@ -140,7 +129,7 @@ export default function FichaAnimal() {
       return;
     }
 
-    navegar('/solicitar', { state: { animal } });
+    navegar(`/solicitar?animal=${animal.animal_id ?? animal.id}`, { state: { animal } });
   }
 
   async function manejarEnviarReporte(e) {
@@ -225,7 +214,7 @@ export default function FichaAnimal() {
               height: '340px',
               objectFit: 'cover',
               borderRadius: '12px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--color-borde)',
             }}
           />
 
@@ -245,7 +234,7 @@ export default function FichaAnimal() {
                   onClick={() => setFotoActiva(foto.url)}
                   style={{
                     padding: 0,
-                    border: fotoActiva === foto.url ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                    border: fotoActiva === foto.url ? '2px solid var(--color-primario)' : '1px solid var(--color-borde)',
                     borderRadius: '8px',
                     overflow: 'hidden',
                     cursor: 'pointer',
@@ -277,12 +266,12 @@ export default function FichaAnimal() {
                 fontWeight: 600,
               }}
             >
-              {animal.estado.replace('_', ' ')}
+              {textoEstado(animal.estado)}
             </span>
           </div>
 
           <p className="subtitulo" style={{ marginTop: '0.4rem' }}>
-            {animal.especie}
+            {textoEspecie(animal.especie)}
             {animal.raza ? ` · ${animal.raza}` : ''} · {animal.comuna}
           </p>
 
@@ -293,31 +282,31 @@ export default function FichaAnimal() {
               gap: '0.75rem',
               marginTop: '1.25rem',
               padding: '1rem',
-              background: '#f8fafc',
+              background: 'var(--color-fondo-suave)',
               borderRadius: '8px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--color-borde)',
             }}
           >
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Edad aproximada</dt>
+              <dt style={{ fontSize: '0.8rem', color: 'var(--color-suave)' }}>Edad aproximada</dt>
               <dd style={{ margin: 0, fontWeight: 600 }}>
-                {animal.edad_aprox} ({ETIQUETA_EDAD[animal.rango_edad] || animal.rango_edad})
+                {animal.edad_aprox} ({textoEdad(animal.rango_edad)})
               </dd>
             </div>
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Tamaño</dt>
+              <dt style={{ fontSize: '0.8rem', color: 'var(--color-suave)' }}>Tamaño</dt>
               <dd style={{ margin: 0, fontWeight: 600 }}>
-                {ETIQUETA_TAMANO[animal.tamano] || animal.tamano}
+                {textoTamano(animal.tamano)}
               </dd>
             </div>
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Sexo</dt>
-              <dd style={{ margin: 0, fontWeight: 600, textTransform: 'capitalize' }}>
-                {animal.sexo}
+              <dt style={{ fontSize: '0.8rem', color: 'var(--color-suave)' }}>Sexo</dt>
+              <dd style={{ margin: 0, fontWeight: 600, }}>
+                {textoSexo(animal.sexo)}
               </dd>
             </div>
             <div>
-              <dt style={{ fontSize: '0.8rem', color: '#64748b' }}>Comuna</dt>
+              <dt style={{ fontSize: '0.8rem', color: 'var(--color-suave)' }}>Comuna</dt>
               <dd style={{ margin: 0, fontWeight: 600 }}>{animal.comuna}</dd>
             </div>
           </dl>
@@ -346,7 +335,7 @@ export default function FichaAnimal() {
             style={{
               marginTop: '1.25rem',
               padding: '1rem',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--color-borde)',
               borderRadius: '8px',
             }}
           >

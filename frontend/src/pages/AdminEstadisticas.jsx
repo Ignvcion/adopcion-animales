@@ -5,18 +5,18 @@ import { useAuth } from '../context/AuthContext.jsx';
 
 // Nombres y colores de cada estado, en el orden en que se muestran
 const ANIMALES = [
-  { clave: 'disponible', texto: 'Disponibles', color: '#2f80ed' },
-  { clave: 'en_proceso', texto: 'En proceso', color: '#f2a93b' },
-  { clave: 'adoptado', texto: 'Adoptados', color: '#1f7a4d' },
-  { clave: 'archivado', texto: 'Archivados', color: '#b8aea5' },
+  { clave: 'disponible', texto: 'Disponibles', color: 'var(--color-primario)' },
+  { clave: 'en_proceso', texto: 'En proceso', color: 'var(--color-acento)' },
+  { clave: 'adoptado', texto: 'Adoptados', color: 'var(--color-exito)' },
+  { clave: 'archivado', texto: 'Archivados', color: 'var(--color-borde-fuerte)' },
 ];
 const SOLICITUDES = [
-  { clave: 'pendiente', texto: 'Pendientes', color: '#f2a93b' },
-  { clave: 'en_revision', texto: 'En revisión', color: '#2f80ed' },
-  { clave: 'aprobada', texto: 'Aprobadas', color: '#1f7a4d' },
+  { clave: 'pendiente', texto: 'Pendientes', color: 'var(--color-acento)' },
+  { clave: 'en_revision', texto: 'En revisión', color: 'var(--color-primario)' },
+  { clave: 'aprobada', texto: 'Aprobadas', color: 'var(--color-exito)' },
   { clave: 'completada', texto: 'Completadas', color: '#0f5132' },
-  { clave: 'rechazada', texto: 'Rechazadas', color: '#b42318' },
-  { clave: 'cancelada', texto: 'Canceladas', color: '#b8aea5' },
+  { clave: 'rechazada', texto: 'Rechazadas', color: 'var(--color-error)' },
+  { clave: 'cancelada', texto: 'Canceladas', color: 'var(--color-borde-fuerte)' },
 ];
 
 /** Barra horizontal dividida en tramos, uno por estado, proporcional a su cantidad. */
@@ -72,6 +72,11 @@ export default function AdminEstadisticas() {
 
   return (
     <div className="panel-estadisticas">
+      <header className="encabezado-seccion">
+        <h1>Estadísticas de la plataforma</h1>
+        <p className="subtitulo">Usuarios, fundaciones, animales y solicitudes registrados hasta hoy.</p>
+      </header>
+
       {/* Lo más importante de la plataforma, en una frase */}
       <section className="resumen-adopciones">
         <p className="resumen-adopciones__cifra">{adopciones}</p>
