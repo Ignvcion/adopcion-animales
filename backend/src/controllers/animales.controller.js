@@ -294,47 +294,107 @@ async function editarAnimal(req, res, next) {
 }
 
 /**
- * PATCH /api/animales/:id/estado (CU13)
+ * PATCH /api/animales/:id/estado (CU13, CU18)
  */
 async function cambiarEstadoAnimal(req, res, next) {
+  const animalId = Number.parseInt(req.params.id, 10);
+  if (!Number.isInteger(animalId) || animalId <= 0) {
+    return res.status(400).json({ error: 'ID de animal inválido' });
+  }
+
+  const nuevoEstado = req.body?.estado
+    ? texto(req.body.estado).toLowerCase()
+    : 'archivado';
+
+  if (!ESTADOS_VALIDOS.includes(nuevoEstado)) {
+    return res.status(400).json({
+      error: 'El estado debe ser disponible, en_proceso, adoptado o archivado',
+    });
+  }
+
+  let conexion;
   try {
-    const animalId = Number.parseInt(req.params.id, 10);
-    if (!Number.isInteger(animalId) || animalId <= 0) {
-      return res.status(400).json({ error: 'ID de animal inválido' });
-    }
+    conexion = await pool.getConnection();
 
-    const nuevoEstado = req.body?.estado
-      ? texto(req.body.estado).toLowerCase()
-      : 'archivado';
-
-    if (!ESTADOS_VALIDOS.includes(nuevoEstado)) {
-      return res.status(400).json({
-        error: 'El estado debe ser disponible, en_proceso, adoptado o archivado',
-      });
-    }
-
-    const fundacion = await obtenerFundacionAprobada(req.usuario.id);
+    const [fundaciones] = await conexion.execute(
+      'SELECT fundacion_id, estado FROM fundacion WHERE usuario_id = ? LIMIT 1',
+      [req.usuario.id]
+    );
+    const fundacion = fundaciones[0];
     if (!fundacion || fundacion.estado !== 'aprobada') {
       return res.status(403).json({ error: 'No tienes una fundación aprobada' });
     }
 
-    const propiedad = await verificarPropiedadAnimal(animalId, fundacion.fundacion_id);
-    if (propiedad.error) {
-      return res.status(propiedad.status).json({ error: propiedad.error });
+    const [animales] = await conexion.execute(
+      'SELECT animal_id, fundacion_id, nombre, estado FROM animal WHERE animal_id = ? LIMIT 1',
+      [animalId]
+    );
+    const animal = animales[0];
+    if (!animal) {
+      return res.status(404).json({ error: 'Animal no encontrado' });
+    }
+    if (animal.fundacion_id !== fundacion.fundacion_id) {
+      return res.status(403).json({ error: 'No puedes modificar animales de otra fundación' });
     }
 
-    await pool.execute(
+    await conexion.beginTransaction();
+
+    await conexion.execute(
       'UPDATE animal SET estado = ? WHERE animal_id = ?',
       [nuevoEstado, animalId]
     );
+
+    let solicitudesCerradas = 0;
+
+    if (nuevoEstado === 'adoptado') {
+      const [pendientes] = await conexion.execute(
+        `SELECT solicitud_id, usuario_id
+           FROM solicitud
+          WHERE animal_id = ?
+            AND estado IN ('pendiente', 'en_revision')`,
+        [animalId]
+      );
+
+      if (pendientes.length > 0) {
+        await conexion.execute(
+          `UPDATE solicitud
+              SET estado = 'rechazada',
+                  comentario_fundacion = 'El animal ya fue adoptado por otro postulante'
+            WHERE animal_id = ?
+              AND estado IN ('pendiente', 'en_revision')`,
+          [animalId]
+        );
+
+        for (const sol of pendientes) {
+          await conexion.execute(
+            `INSERT INTO notificacion (usuario_id, animal_id, solicitud_id, tipo, titulo, mensaje)
+             VALUES (?, ?, ?, 'adopcion', ?, ?)`,
+            [
+              sol.usuario_id,
+              animalId,
+              sol.solicitud_id,
+              `${animal.nombre} ya fue adoptado`,
+              `Te informamos que ${animal.nombre} ya fue adoptado por otro postulante, por lo que tu solicitud fue cerrada automáticamente.`,
+            ]
+          );
+        }
+        solicitudesCerradas = pendientes.length;
+      }
+    }
+
+    await conexion.commit();
 
     return res.json({
       mensaje: 'Estado del animal actualizado',
       animal_id: animalId,
       estado: nuevoEstado,
+      solicitudes_cerradas: solicitudesCerradas,
     });
   } catch (error) {
+    if (conexion) await conexion.rollback();
     return next(error);
+  } finally {
+    if (conexion) conexion.release();
   }
 }
 
