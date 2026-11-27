@@ -2,21 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { textoEdad, textoEspecie, textoEstado, textoSexo, textoTamano } from '../utils/etiquetas.js';
 
 const IMAGEN_PLACEHOLDER = '/sin-foto-animal.svg';
-
-const ETIQUETA_TAMANO = {
-  pequeno: 'Pequeño',
-  mediano: 'Mediano',
-  grande: 'Grande',
-};
-
-const ETIQUETA_EDAD = {
-  cachorro: 'Cachorro',
-  joven: 'Joven',
-  adulto: 'Adulto',
-  senior: 'Senior',
-};
 
 const MOTIVOS_REPORTE = [
   { valor: 'informacion_falsa', etiqueta: 'Información falsa o engañosa' },
@@ -142,7 +130,7 @@ export default function FichaAnimal() {
       return;
     }
 
-    navegar('/solicitar', { state: { animal } });
+    navegar(`/solicitar?animal=${animal.animal_id ?? animal.id}`, { state: { animal } });
   }
 
   async function manejarEnviarReporte(e) {
@@ -246,12 +234,12 @@ export default function FichaAnimal() {
                 estaDisponible ? 'ficha-estado--disponible' : 'ficha-estado--no-disponible'
               }`}
             >
-              {animal.estado.replace('_', ' ')}
+              {textoEstado(animal.estado)}
             </span>
           </div>
 
           <p className="subtitulo ficha-subtitulo">
-            {animal.especie}
+            {textoEspecie(animal.especie)}
             {animal.raza ? ` · ${animal.raza}` : ''} · {animal.comuna}
           </p>
 
@@ -259,19 +247,19 @@ export default function FichaAnimal() {
             <div>
               <dt className="ficha-dato-etiqueta">Edad aproximada</dt>
               <dd className="ficha-dato-valor">
-                {animal.edad_aprox} ({ETIQUETA_EDAD[animal.rango_edad] || animal.rango_edad})
+                {animal.edad_aprox} ({textoEdad(animal.rango_edad)})
               </dd>
             </div>
             <div>
               <dt className="ficha-dato-etiqueta">Tamaño</dt>
               <dd className="ficha-dato-valor">
-                {ETIQUETA_TAMANO[animal.tamano] || animal.tamano}
+                {textoTamano(animal.tamano)}
               </dd>
             </div>
             <div>
               <dt className="ficha-dato-etiqueta">Sexo</dt>
-              <dd className="ficha-dato-valor ficha-dato-valor--capitalizado">
-                {animal.sexo}
+              <dd className="ficha-dato-valor">
+                {textoSexo(animal.sexo)}
               </dd>
             </div>
             <div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
+import { textoEspecie, textoTamano } from '../utils/etiquetas.js';
 
 const IMAGEN_PLACEHOLDER = '/sin-foto-animal.svg';
 
@@ -123,11 +124,11 @@ export default function PerfilFundacion() {
 
                 <h3 className="fundacion-animal-titulo">{animal.nombre}</h3>
                 <p className="subtitulo fundacion-animal-subtitulo">
-                  {animal.especie}
+                  {textoEspecie(animal.especie)}
                   {animal.raza ? ` · ${animal.raza}` : ''} · {animal.edad_aprox}
                 </p>
                 <p className="fundacion-animal-meta">
-                  {animal.tamano === 'pequeno' ? 'Pequeño' : animal.tamano} · {animal.comuna}
+                  {textoTamano(animal.tamano)} · {animal.comuna}
                 </p>
 
                 <Link

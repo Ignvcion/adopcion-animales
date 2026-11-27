@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import './TarjetaAnimal.css';
+import { textoEspecie, textoEstado, textoTamano } from '../utils/etiquetas.js';
 
 export default function TarjetaAnimal({
   animal,
@@ -79,16 +80,17 @@ export default function TarjetaAnimal({
           className="tarjeta-animal__imagen"
         />
         <span className={`tarjeta-animal__etiqueta tarjeta-animal__etiqueta--${animal.estado || 'disponible'}`}>
-          {animal.estado?.replace('_', ' ') || 'disponible'}
+          {textoEstado(animal.estado || 'disponible')}
         </span>
       </div>
 
       <div className="tarjeta-animal__cuerpo">
         <h3 className="tarjeta-animal__titulo">
-          {animal.nombre} ({animal.especie})
+          {animal.nombre}
+          <span className="tarjeta-animal__especie">{textoEspecie(animal.especie)}</span>
         </h3>
         <p className="tarjeta-animal__meta">
-          Tamaño: {animal.tamano} · Edad: {edadTexto}
+          {textoTamano(animal.tamano)} · {edadTexto}
         </p>
         <p className="tarjeta-animal__comuna">
           Comuna: {animal.comuna}
