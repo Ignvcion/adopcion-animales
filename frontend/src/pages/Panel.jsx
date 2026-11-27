@@ -32,11 +32,17 @@ export default function Panel() {
         </div>
       )}
 
-      {/* Módulo Animales y Fundaciones (CU11–CU14) */}
+      {/* Módulo Animales y Fundaciones (CU11–CU20) */}
       {usuario.rol === 'fundacion' && (
         <div style={{ marginTop: '2rem' }}>
           <h2>Gestión de animales</h2>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <Link to="/panel/publicaciones" className="boton">
+              Mis publicaciones
+            </Link>
+            <Link to="/panel/publicaciones/nueva" className="boton">
+              Publicar animal
+            </Link>
             <Link to="/panel/fotos" className="boton">
               Subir y ordenar fotos
             </Link>
