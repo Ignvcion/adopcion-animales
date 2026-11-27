@@ -85,6 +85,7 @@ export default function Layout() {
         </Link>
         <nav className="menu">
           <NavLink to="/" end>Inicio</NavLink>
+          <NavLink to="/historias">Historias</NavLink>
           {usuario ? (
             <>
               {usuario.rol === 'adoptante' && (

@@ -23,6 +23,7 @@ import MisPublicaciones from './pages/MisPublicaciones.jsx';
 import FormularioAnimal from './pages/FormularioAnimal.jsx';
 import Visitas from './pages/Visitas.jsx';
 import Notificaciones from './pages/Notificaciones.jsx';
+import HistoriasExito from './pages/HistoriasExito.jsx';
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
       <Route element={<Layout />}>
         {/* Públicas */}
         <Route path="/" element={<Inicio />} />
+        <Route path="/historias" element={<HistoriasExito />} />
         <Route path="/animales/:id" element={<FichaAnimal />} />
         <Route path="/fundaciones/:id" element={<PerfilFundacion />} />
         <Route path="/login" element={<Login />} />
