@@ -25,14 +25,34 @@ const ETIQUETA_TIPO = {
   seguimiento: 'Seguimiento',
 };
 
+function parsearFechaUtc(fechaIso) {
+  if (!fechaIso) return null;
+  if (fechaIso instanceof Date) return Number.isNaN(fechaIso.getTime()) ? null : fechaIso;
+  const texto = String(fechaIso).trim();
+  const normalizado = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}(:\d{2})?$/.test(texto)
+    ? `${texto.replace(' ', 'T')}Z`
+    : texto;
+  const fecha = new Date(normalizado);
+  return Number.isNaN(fecha.getTime()) ? null : fecha;
+}
+
 function formatearFechaHora(fechaIso) {
-  if (!fechaIso) return '—';
-  const fecha = new Date(fechaIso);
-  if (Number.isNaN(fecha.getTime())) return '—';
+  const fecha = parsearFechaUtc(fechaIso);
+  if (!fecha) return '—';
   return fecha.toLocaleString('es-CL', {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
+}
+
+function aInputDatetimeLocal(fechaIso) {
+  const fecha = parsearFechaUtc(fechaIso);
+  if (!fecha) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return (
+    `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())}` +
+    `T${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`
+  );
 }
 
 // CU27 — Vista de visitas agendadas para adoptantes y fundaciones
@@ -92,7 +112,7 @@ export default function Visitas() {
 
   function abrirReprogramar(visita) {
     setReprogramando(visita);
-    setNuevaFecha('');
+    setNuevaFecha(aInputDatetimeLocal(visita.fecha_programada));
     setNuevoLugar(visita.direccion_o_enlace || '');
     setNuevasNotas(visita.notas || '');
     setErrorReprogramar('');
@@ -108,6 +128,12 @@ export default function Visitas() {
       return;
     }
 
+    const fechaObj = new Date(nuevaFecha);
+    if (Number.isNaN(fechaObj.getTime())) {
+      setErrorReprogramar('La fecha y hora ingresadas no son válidas.');
+      return;
+    }
+
     setProcesandoId(reprogramando.visita_id);
     try {
       await pedir(`/visitas/${reprogramando.visita_id}/estado`, {
@@ -115,7 +141,7 @@ export default function Visitas() {
         token,
         cuerpo: {
           estado: 'reprogramada',
-          fecha_programada: nuevaFecha,
+          fecha_programada: fechaObj.toISOString(),
           direccion_o_enlace: nuevoLugar.trim() || undefined,
           notas: nuevasNotas.trim(),
         },
@@ -260,7 +286,7 @@ export default function Visitas() {
 
                   {!cerrada && (
                     <div className="acciones" style={{ marginTop: '1rem' }}>
-                      {visita.estado !== 'confirmada' && (
+                      {visita.estado !== 'confirmada' && visita.usuario_id !== usuario?.id && (
                         <button
                           type="button"
                           className="boton boton-chico-tabla"

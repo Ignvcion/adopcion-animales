@@ -25,8 +25,8 @@ function normalizarFechaMysql(valor) {
 
   const pad = (n) => String(n).padStart(2, '0');
   const mysqlDatetime =
-    `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())} ` +
-    `${pad(fecha.getHours())}:${pad(fecha.getMinutes())}:${pad(fecha.getSeconds())}`;
+    `${fecha.getUTCFullYear()}-${pad(fecha.getUTCMonth() + 1)}-${pad(fecha.getUTCDate())} ` +
+    `${pad(fecha.getUTCHours())}:${pad(fecha.getUTCMinutes())}:${pad(fecha.getUTCSeconds())}`;
 
   return { fechaMysql: mysqlDatetime, fechaObj: fecha };
 }
@@ -35,6 +35,7 @@ function formatearFechaLegible(fechaObj) {
   return fechaObj.toLocaleString('es-CL', {
     dateStyle: 'medium',
     timeStyle: 'short',
+    timeZone: 'America/Santiago',
   });
 }
 
@@ -138,7 +139,7 @@ async function crearVisita(req, res, next) {
        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'programada', ?)`,
       [
         solicitudId,
-        solicitud.adoptante_id,
+        req.usuario.id,
         solicitud.animal_id,
         tipo,
         modalidad,
@@ -175,11 +176,11 @@ async function crearVisita(req, res, next) {
       visita: {
         visita_id: resultado.insertId,
         solicitud_id: solicitudId,
-        usuario_id: solicitud.adoptante_id,
+        usuario_id: req.usuario.id,
         animal_id: solicitud.animal_id,
         tipo,
         modalidad,
-        fecha_programada: fechaMysql,
+        fecha_programada: fechaObj.toISOString(),
         direccion_o_enlace: direccionOEnlace,
         estado: 'programada',
         notas,
@@ -213,8 +214,8 @@ async function listarMisVisitas(req, res, next) {
     const params = [];
 
     if (req.usuario.rol === 'adoptante') {
-      condiciones.push('v.usuario_id = ?');
-      params.push(req.usuario.id);
+      condiciones.push('(s.usuario_id = ? OR v.usuario_id = ?)');
+      params.push(req.usuario.id, req.usuario.id);
     } else {
       condiciones.push('f.usuario_id = ?');
       params.push(req.usuario.id);
@@ -257,8 +258,8 @@ async function listarMisVisitas(req, res, next) {
          FROM visita v
          INNER JOIN animal a ON a.animal_id = v.animal_id
          INNER JOIN fundacion f ON f.fundacion_id = a.fundacion_id
-         INNER JOIN usuario u ON u.usuario_id = v.usuario_id
          LEFT JOIN solicitud s ON s.solicitud_id = v.solicitud_id
+         LEFT JOIN usuario u ON u.usuario_id = COALESCE(s.usuario_id, v.usuario_id)
         WHERE ${condiciones.join(' AND ')}
         ORDER BY v.fecha_programada DESC, v.visita_id DESC`,
       params
@@ -325,7 +326,8 @@ async function actualizarEstadoVisita(req, res, next) {
     const [visitas] = await conexion.execute(
       `SELECT v.visita_id,
               v.solicitud_id,
-              v.usuario_id AS adoptante_id,
+              v.usuario_id AS propuso_usuario_id,
+              COALESCE(s.usuario_id, v.usuario_id) AS adoptante_id,
               v.animal_id,
               v.fecha_programada,
               v.direccion_o_enlace,
@@ -338,7 +340,8 @@ async function actualizarEstadoVisita(req, res, next) {
          FROM visita v
          INNER JOIN animal a ON a.animal_id = v.animal_id
          INNER JOIN fundacion f ON f.fundacion_id = a.fundacion_id
-         INNER JOIN usuario u ON u.usuario_id = v.usuario_id
+         LEFT JOIN solicitud s ON s.solicitud_id = v.solicitud_id
+         LEFT JOIN usuario u ON u.usuario_id = COALESCE(s.usuario_id, v.usuario_id)
         WHERE v.visita_id = ?
         LIMIT 1`,
       [visitaId]
@@ -361,21 +364,41 @@ async function actualizarEstadoVisita(req, res, next) {
       });
     }
 
-    const fechaFinal = nuevaFechaMysql || visita.fecha_programada;
+    if (nuevoEstado === 'confirmada' && visita.propuso_usuario_id === req.usuario.id) {
+      return res.status(403).json({
+        error: 'Solo la otra parte puede confirmar esta visita',
+      });
+    }
+
     const direccionFinal = direccionOEnlace || visita.direccion_o_enlace;
     const notasFinal = notas !== undefined ? (notas || null) : visita.notas;
+    const propusoUsuarioFinal = nuevoEstado === 'reprogramada'
+      ? req.usuario.id
+      : visita.propuso_usuario_id;
 
     await conexion.beginTransaction();
 
-    await conexion.execute(
-      `UPDATE visita
-          SET estado = ?,
-              fecha_programada = ?,
-              direccion_o_enlace = ?,
-              notas = ?
-        WHERE visita_id = ?`,
-      [nuevoEstado, fechaFinal, direccionFinal, notasFinal, visitaId]
-    );
+    if (nuevoEstado === 'reprogramada') {
+      await conexion.execute(
+        `UPDATE visita
+            SET estado = ?,
+                usuario_id = ?,
+                fecha_programada = ?,
+                direccion_o_enlace = ?,
+                notas = ?
+          WHERE visita_id = ?`,
+        [nuevoEstado, propusoUsuarioFinal, nuevaFechaMysql, direccionFinal, notasFinal, visitaId]
+      );
+    } else {
+      await conexion.execute(
+        `UPDATE visita
+            SET estado = ?,
+                direccion_o_enlace = ?,
+                notas = ?
+          WHERE visita_id = ?`,
+        [nuevoEstado, direccionFinal, notasFinal, visitaId]
+      );
+    }
 
     const destinatarioId = req.usuario.rol === 'fundacion'
       ? visita.adoptante_id
@@ -412,8 +435,9 @@ async function actualizarEstadoVisita(req, res, next) {
     return res.json({
       mensaje: 'Estado de visita actualizado',
       visita_id: visitaId,
+      usuario_id: propusoUsuarioFinal,
       estado: nuevoEstado,
-      fecha_programada: fechaFinal,
+      fecha_programada: nuevaFechaObj ? nuevaFechaObj.toISOString() : visita.fecha_programada,
       direccion_o_enlace: direccionFinal,
     });
   } catch (error) {

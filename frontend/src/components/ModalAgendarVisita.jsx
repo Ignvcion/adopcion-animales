@@ -22,6 +22,13 @@ export default function ModalAgendarVisita({ solicitud, onCerrar, onAgendada }) 
       setError('Debes seleccionar una fecha y hora para la visita.');
       return;
     }
+
+    const fechaObj = new Date(fechaHora);
+    if (Number.isNaN(fechaObj.getTime())) {
+      setError('La fecha y hora seleccionadas no son válidas.');
+      return;
+    }
+
     if (!lugar.trim()) {
       setError(
         modalidad === 'videollamada'
@@ -40,7 +47,7 @@ export default function ModalAgendarVisita({ solicitud, onCerrar, onAgendada }) 
           solicitud_id: solicitud.solicitud_id,
           tipo,
           modalidad,
-          fecha_programada: fechaHora,
+          fecha_programada: fechaObj.toISOString(),
           direccion_o_enlace: lugar.trim(),
           notas: notas.trim() || undefined,
         },
