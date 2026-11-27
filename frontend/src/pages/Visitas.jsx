@@ -168,14 +168,14 @@ export default function Visitas() {
             Revisa, confirma o reprograma las visitas coordinadas para conocer a los animales.
           </p>
         </div>
-        <div className="acciones" style={{ marginTop: 0 }}>
+        <div className="acciones acciones--sin-margen">
           <Link
             to={esFundacion ? '/panel/solicitudes' : '/solicitudes'}
             className="boton boton-secundario"
           >
             {esFundacion ? 'Ir a solicitudes' : 'Mis solicitudes'}
           </Link>
-          <Link to="/panel" className="boton" style={{ background: 'var(--color-suave)' }}>
+          <Link to="/panel" className="boton boton-neutro">
             ← Panel
           </Link>
         </div>
@@ -198,13 +198,13 @@ export default function Visitas() {
       </div>
 
       {aviso && (
-        <p className="alerta-info" role="status" style={{ marginBottom: '1rem' }}>
+        <p className="alerta-info alerta--inferior" role="status">
           {aviso}
         </p>
       )}
 
       {error && (
-        <div className="alerta-error" role="alert" style={{ marginBottom: '1rem' }}>
+        <div className="alerta-error alerta--inferior" role="alert">
           {error}
         </div>
       )}
@@ -212,9 +212,9 @@ export default function Visitas() {
       {cargando ? (
         <p className="cargando">Cargando visitas…</p>
       ) : visitas.length === 0 ? (
-        <div className="tarjeta centrada">
-          <h2 style={{ marginTop: 0 }}>No hay visitas registradas</h2>
-          <p className="subtitulo">
+        <div className="tarjeta estado-vacio">
+          <h2 className="estado-vacio__titulo">No hay visitas registradas</h2>
+          <p className="estado-vacio__texto">
             Puedes agendar una visita desde una solicitud aprobada o en revisión.
           </p>
           <Link
@@ -279,18 +279,17 @@ export default function Visitas() {
                   </dl>
 
                   {visita.notas && (
-                    <p className="alerta-info" style={{ marginTop: '0.75rem' }}>
+                    <p className="alerta-info alerta--compacta">
                       <strong>Notas:</strong> {visita.notas}
                     </p>
                   )}
 
                   {!cerrada && (
-                    <div className="acciones" style={{ marginTop: '1rem' }}>
+                    <div className="acciones">
                       {visita.estado !== 'confirmada' && visita.usuario_id !== usuario?.id && (
                         <button
                           type="button"
-                          className="boton boton-chico-tabla"
-                          style={{ background: 'var(--color-exito)' }}
+                          className="boton boton-exito boton-chico-tabla"
                           disabled={ocupada}
                           onClick={() =>
                             cambiarEstado(
@@ -360,11 +359,11 @@ export default function Visitas() {
           aria-modal="true"
           aria-labelledby="modal-reprogramar-titulo"
         >
-          <div className="tarjeta modal" style={{ maxWidth: 460 }}>
-            <h2 id="modal-reprogramar-titulo" style={{ marginTop: 0 }}>
+          <div className="tarjeta modal modal--mediana">
+            <h2 id="modal-reprogramar-titulo">
               Reprogramar visita — {reprogramando.animal_nombre}
             </h2>
-            <form onSubmit={enviarReprogramacion} className="formulario" style={{ margin: 0, maxWidth: '100%' }}>
+            <form onSubmit={enviarReprogramacion} className="formulario formulario--modal">
               <label htmlFor="reprog-fecha">Nueva fecha y hora</label>
               <input
                 id="reprog-fecha"
@@ -401,7 +400,7 @@ export default function Visitas() {
                 </p>
               )}
 
-              <div className="acciones" style={{ marginTop: '1.25rem' }}>
+              <div className="acciones acciones--espaciadas">
                 <button
                   type="submit"
                   className="boton"

@@ -125,6 +125,23 @@ button, input, select, textarea { font: inherit; }
   border-radius: 10px;
   resize: vertical;
 }
+.formulario select {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  background: #fff;
+}
+.formulario select:focus,
+.formulario textarea:focus {
+  outline: 2px solid var(--color-primario);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.formulario--modal {
+  margin: 0;
+  max-width: 100%;
+}
 
 .bloque-contrasena { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--color-borde); }
 .bloque-contrasena h2 { margin: 0 0 0.25rem; font-size: 1.15rem; }
@@ -157,10 +174,16 @@ button, input, select, textarea { font: inherit; }
   color: var(--color-error);
   font-size: 0.95rem;
 }
+.alerta--inferior { margin-bottom: 1rem; }
+.alerta--compacta { margin-top: 0.75rem; }
+.alerta-error__texto { margin: 0 0 0.5rem; }
 
 /* Administración */
 .seccion-panel { margin-top: 2rem; }
 .acciones { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1rem; }
+.acciones--sin-margen { margin-top: 0; }
+.acciones--espaciadas { gap: 1rem; margin-top: 1.25rem; }
+.acciones--centradas { gap: 1rem; justify-content: center; }
 .filtros-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0; }
 .chip {
   border: 1px solid var(--color-borde);
@@ -170,6 +193,27 @@ button, input, select, textarea { font: inherit; }
   cursor: pointer;
 }
 .chip-activo { background: var(--color-primario); border-color: var(--color-primario); color: #fff; }
+.filtros-solicitudes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.chip-filtro {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-borde);
+  background: var(--color-tarjeta);
+  color: var(--color-texto);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+.chip-filtro--activo {
+  border-color: var(--color-primario);
+  background: var(--color-primario);
+  color: #fff;
+}
 .lista-admin { display: grid; gap: 1rem; }
 .tarjeta-admin { padding: 1.25rem 1.5rem; }
 .tarjeta-admin__cabecera { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
@@ -182,6 +226,10 @@ button, input, select, textarea { font: inherit; }
 .boton-secundario:hover { background: var(--color-fondo); }
 .boton-peligro { background: var(--color-error); }
 .boton-peligro:hover { background: #8f1c13; }
+.boton-exito { background: var(--color-exito); }
+.boton-exito:hover { background: #18623d; }
+.boton-neutro { background: var(--color-suave); }
+.boton-neutro:hover { background: #595049; }
 .formulario-rechazo { margin-top: 1rem; }
 .formulario-rechazo label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
 .formulario-rechazo textarea { width: 100%; padding: 0.7rem; border: 1px solid var(--color-borde); border-radius: 10px; }
@@ -196,13 +244,35 @@ button, input, select, textarea { font: inherit; }
 .tabla .detalle { display: block; font-size: 0.85rem; color: var(--color-suave); }
 .boton-chico-tabla { padding: 0.4rem 0.8rem; font-size: 0.9rem; }
 .modal-fondo {
-  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45);
-  display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 50;
+  position: fixed; inset: 0; background: rgba(43, 36, 32, 0.45);
+  display: flex; align-items: center; justify-content: center; padding: 1rem; z-index: 100;
 }
 .modal { max-width: 420px; width: 100%; }
+.modal--centrada { max-width: 440px; text-align: center; }
+.modal--mediana { max-width: 460px; }
+.modal--amplia { max-width: 480px; }
 .modal h2 { margin-top: 0; }
+.modal__subtitulo { margin-bottom: 1rem; }
+.modal__titulo--exito { color: var(--color-exito); }
+.modal__titulo--error { color: var(--color-error); }
+.modal__descripcion { color: var(--color-suave); margin-bottom: 1.5rem; }
+.modal__etiqueta { font-weight: 600; display: block; margin-bottom: 0.4rem; }
+.campo-obligatorio { color: var(--color-error); }
+.modal__textarea {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  resize: vertical;
+  font-family: inherit;
+}
+.modal__textarea--error { border-color: var(--color-error); }
 
 .vacio { color: var(--color-suave); text-align: center; padding: 2rem 0; }
+.estado-vacio { max-width: 460px; margin: 2rem auto; text-align: center; }
+.estado-vacio__titulo { margin: 0 0 0.5rem; }
+.estado-vacio__texto { margin: 0 0 1.25rem; color: var(--color-suave); }
+.estado-vacio__texto:last-child { margin-bottom: 0; }
 
 /* Estadísticas (CU09) */
 .panel-estadisticas { display: grid; gap: 1.25rem; }
@@ -360,6 +430,24 @@ button, input, select, textarea { font: inherit; }
 .solicitud-item__detalles dd {
   margin: 0.1rem 0 0;
   color: var(--color-texto);
+}
+.solicitud-item__desplegable {
+  margin-top: 0.9rem;
+}
+.solicitud-item__resumen-toggle {
+  cursor: pointer;
+  color: var(--color-primario);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.solicitud-item__detalles--compacto {
+  margin-top: 0.75rem;
+}
+.solicitud-item__detalle-completo {
+  flex: 1 1 100%;
+}
+.solicitud-item__texto-largo {
+  white-space: pre-wrap;
 }
 
 @media (max-width: 600px) {

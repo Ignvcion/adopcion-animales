@@ -39,34 +39,25 @@ function formatearFecha(fechaIso) {
 function DialogoAprobar({ solicitud, onConfirmar, onCancelar, cargando }) {
   return (
     <div
+      className="modal-fondo"
       role="dialog"
       aria-modal="true"
       aria-labelledby="dialogo-aprobar-titulo"
-      style={{
-        position: 'fixed', inset: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(43,36,32,0.45)',
-        padding: '1rem',
-      }}
     >
-      <div
-        className="tarjeta"
-        style={{ maxWidth: 440, width: '100%', textAlign: 'center' }}
-      >
-        <h2 id="dialogo-aprobar-titulo" style={{ marginTop: 0, color: 'var(--color-exito)' }}>
+      <div className="tarjeta modal modal--centrada">
+        <h2 id="dialogo-aprobar-titulo" className="modal__titulo--exito">
           ¿Aprobar esta solicitud?
         </h2>
-        <p style={{ color: 'var(--color-suave)', marginBottom: '1.5rem' }}>
+        <p className="modal__descripcion">
           Aprobarás la postulación de{' '}
           <strong>{solicitud.adoptante_nombre}</strong> para adoptar a{' '}
           <strong>{solicitud.animal_nombre}</strong>.<br />
           Las demás solicitudes pendientes del mismo animal se rechazarán automáticamente.
         </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div className="acciones acciones--sin-margen acciones--centradas">
           <button
             type="button"
-            className="boton"
-            style={{ background: 'var(--color-exito)' }}
+            className="boton boton-exito"
             onClick={onConfirmar}
             disabled={cargando}
           >
@@ -74,8 +65,7 @@ function DialogoAprobar({ solicitud, onConfirmar, onCancelar, cargando }) {
           </button>
           <button
             type="button"
-            className="boton"
-            style={{ background: 'var(--color-suave)' }}
+            className="boton boton-neutro"
             onClick={onCancelar}
             disabled={cargando}
           >
@@ -103,39 +93,27 @@ function DialogoRechazar({ solicitud, onConfirmar, onCancelar, cargando }) {
 
   return (
     <div
+      className="modal-fondo"
       role="dialog"
       aria-modal="true"
       aria-labelledby="dialogo-rechazar-titulo"
-      style={{
-        position: 'fixed', inset: 0, zIndex: 100,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(43,36,32,0.45)',
-        padding: '1rem',
-      }}
     >
-      <div className="tarjeta" style={{ maxWidth: 460, width: '100%' }}>
-        <h2 id="dialogo-rechazar-titulo" style={{ marginTop: 0, color: 'var(--color-error)' }}>
+      <div className="tarjeta modal modal--mediana">
+        <h2 id="dialogo-rechazar-titulo" className="modal__titulo--error">
           Rechazar solicitud
         </h2>
-        <p style={{ color: 'var(--color-suave)' }}>
+        <p className="subtitulo">
           Estás rechazando la postulación de <strong>{solicitud.adoptante_nombre}</strong> para{' '}
           <strong>{solicitud.animal_nombre}</strong>.
         </p>
         <form onSubmit={manejarEnvio} noValidate>
-          <label htmlFor="comentario-rechazo" style={{ fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
-            Motivo del rechazo <span style={{ color: 'var(--color-error)' }}>*</span>
+          <label htmlFor="comentario-rechazo" className="modal__etiqueta">
+            Motivo del rechazo <span className="campo-obligatorio">*</span>
           </label>
           <textarea
             id="comentario-rechazo"
             rows={4}
-            style={{
-              width: '100%',
-              padding: '0.7rem 0.8rem',
-              border: `1px solid ${errorComentario ? 'var(--color-error)' : 'var(--color-borde)'}`,
-              borderRadius: '10px',
-              resize: 'vertical',
-              fontFamily: 'inherit',
-            }}
+            className={`modal__textarea ${errorComentario ? 'modal__textarea--error' : ''}`}
             value={comentario}
             onChange={(e) => { setComentario(e.target.value); setErrorComentario(''); }}
             aria-invalid={Boolean(errorComentario)}
@@ -146,19 +124,17 @@ function DialogoRechazar({ solicitud, onConfirmar, onCancelar, cargando }) {
           {errorComentario && (
             <span id="error-comentario" className="error-campo">{errorComentario}</span>
           )}
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+          <div className="acciones acciones--espaciadas">
             <button
               type="submit"
-              className="boton"
-              style={{ background: 'var(--color-error)' }}
+              className="boton boton-peligro"
               disabled={cargando}
             >
               {cargando ? 'Rechazando…' : 'Confirmar rechazo'}
             </button>
             <button
               type="button"
-              className="boton"
-              style={{ background: 'var(--color-suave)' }}
+              className="boton boton-neutro"
               onClick={onCancelar}
               disabled={cargando}
             >
@@ -233,7 +209,7 @@ function TarjetaSolicitud({ solicitud, onResuelta, onAgendarVisita }) {
           <div className="solicitud-item__cabecera">
             <div>
               <h2 className="solicitud-item__titulo">{solicitud.animal_nombre}</h2>
-              <p className="solicitud-item__meta" style={{ textTransform: 'capitalize' }}>
+              <p className="solicitud-item__meta">
                 {solicitud.animal_especie} · {solicitud.animal_estado}
               </p>
             </div>
@@ -282,25 +258,18 @@ function TarjetaSolicitud({ solicitud, onResuelta, onAgendarVisita }) {
           </dl>
 
           {/* Formulario de solicitud */}
-          <details style={{ marginTop: '0.9rem' }}>
-            <summary
-              style={{
-                cursor: 'pointer',
-                color: 'var(--color-primario)',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-              }}
-            >
+          <details className="solicitud-item__desplegable">
+            <summary className="solicitud-item__resumen-toggle">
               Ver formulario completo
             </summary>
-            <dl className="solicitud-item__detalles" style={{ marginTop: '0.75rem' }}>
-              <div style={{ flex: '1 1 100%' }}>
+            <dl className="solicitud-item__detalles solicitud-item__detalles--compacto">
+              <div className="solicitud-item__detalle-completo">
                 <dt>Experiencia con animales</dt>
-                <dd style={{ whiteSpace: 'pre-wrap' }}>{solicitud.experiencia}</dd>
+                <dd className="solicitud-item__texto-largo">{solicitud.experiencia}</dd>
               </div>
-              <div style={{ flex: '1 1 100%' }}>
+              <div className="solicitud-item__detalle-completo">
                 <dt>Motivo de adopción</dt>
-                <dd style={{ whiteSpace: 'pre-wrap' }}>{solicitud.motivo}</dd>
+                <dd className="solicitud-item__texto-largo">{solicitud.motivo}</dd>
               </div>
             </dl>
           </details>
@@ -308,10 +277,9 @@ function TarjetaSolicitud({ solicitud, onResuelta, onAgendarVisita }) {
           {/* Comentario de la fundación si ya fue resuelta */}
           {solicitud.comentario_fundacion && (
             <p
-              className={
+              className={`${
                 solicitud.estado === 'aprobada' ? 'alerta-info' : 'alerta-error'
-              }
-              style={{ marginTop: '0.75rem' }}
+              } alerta--compacta`}
             >
               <strong>Tu respuesta:</strong> {solicitud.comentario_fundacion}
             </p>
@@ -319,20 +287,19 @@ function TarjetaSolicitud({ solicitud, onResuelta, onAgendarVisita }) {
 
           {/* Error al resolver */}
           {errorAccion && (
-            <p className="alerta-error" role="alert" style={{ marginTop: '0.75rem' }}>
+            <p className="alerta-error alerta--compacta" role="alert">
               {errorAccion}
             </p>
           )}
 
           {/* Botones de acción */}
           {(esPendiente || puedeAgendarVisita) && (
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <div className="acciones">
               {esPendiente && (
                 <>
                   <button
                     type="button"
-                    className="boton"
-                    style={{ background: 'var(--color-exito)' }}
+                    className="boton boton-exito"
                     onClick={() => setDialogo('aprobar')}
                     disabled={cargandoAccion}
                   >
@@ -340,8 +307,7 @@ function TarjetaSolicitud({ solicitud, onResuelta, onAgendarVisita }) {
                   </button>
                   <button
                     type="button"
-                    className="boton"
-                    style={{ background: 'var(--color-error)' }}
+                    className="boton boton-peligro"
                     onClick={() => setDialogo('rechazar')}
                     disabled={cargandoAccion}
                   >
@@ -410,18 +376,18 @@ export default function SolicitudesFundacion() {
             Revisa y gestiona las postulaciones de adopción para los animales de tu fundación.
           </p>
         </div>
-        <div className="acciones" style={{ marginTop: 0 }}>
+        <div className="acciones acciones--sin-margen">
           <Link to="/panel/visitas" className="boton boton-secundario">
             Mis visitas
           </Link>
-          <Link to="/panel" className="boton" style={{ background: 'var(--color-suave)' }}>
+          <Link to="/panel" className="boton boton-neutro">
             ← Panel
           </Link>
         </div>
       </div>
 
       {aviso && (
-        <p className="alerta-info" role="status" style={{ marginBottom: '1rem' }}>
+        <p className="alerta-info alerta--inferior" role="status">
           {aviso}
         </p>
       )}
@@ -430,12 +396,7 @@ export default function SolicitudesFundacion() {
       <div
         role="group"
         aria-label="Filtrar por estado"
-        style={{
-          display: 'flex',
-          gap: '0.5rem',
-          flexWrap: 'wrap',
-          marginBottom: '1.5rem',
-        }}
+        className="filtros-solicitudes"
       >
         {FILTROS.map((f) => (
           <button
@@ -443,16 +404,7 @@ export default function SolicitudesFundacion() {
             type="button"
             onClick={() => setFiltro(f.valor)}
             aria-pressed={filtro === f.valor}
-            style={{
-              padding: '0.4rem 1rem',
-              borderRadius: '999px',
-              border: `2px solid ${filtro === f.valor ? 'var(--color-primario)' : 'var(--color-borde)'}`,
-              background: filtro === f.valor ? 'var(--color-primario)' : 'var(--color-tarjeta)',
-              color: filtro === f.valor ? '#fff' : 'var(--color-texto)',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontSize: '0.88rem',
-            }}
+            className={`chip-filtro ${filtro === f.valor ? 'chip-filtro--activo' : ''}`}
           >
             {f.etiqueta}
             {f.valor !== 'todas' && conteosPorEstado[f.valor]
@@ -468,7 +420,7 @@ export default function SolicitudesFundacion() {
       {/* Error */}
       {!cargando && error && (
         <div className="alerta-error" role="alert">
-          <p style={{ margin: '0 0 0.5rem' }}>{error}</p>
+          <p className="alerta-error__texto">{error}</p>
           <button type="button" className="boton-texto" onClick={cargarSolicitudes}>
             Reintentar
           </button>
@@ -477,13 +429,13 @@ export default function SolicitudesFundacion() {
 
       {/* Sin solicitudes */}
       {!cargando && !error && solicitudes.length === 0 && (
-        <div className="tarjeta centrada">
-          <h2 style={{ marginTop: 0 }}>
+        <div className="tarjeta estado-vacio">
+          <h2 className="estado-vacio__titulo">
             {filtro === 'todas'
               ? 'Aún no has recibido solicitudes'
               : `Sin solicitudes ${FILTROS.find((f) => f.valor === filtro)?.etiqueta.toLowerCase()}`}
           </h2>
-          <p className="subtitulo">
+          <p className="estado-vacio__texto">
             {filtro === 'todas'
               ? 'Cuando alguien postule a uno de tus animales, aparecerá aquí.'
               : 'Prueba cambiando el filtro para ver otras solicitudes.'}
