@@ -12,6 +12,7 @@ export default function Layout() {
   const [noLeidas, setNoLeidas] = useState(0);
   const [recientes, setRecientes] = useState([]);
   const [panelAbierto, setPanelAbierto] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const campanaRef = useRef(null);
 
   const cargarNotificaciones = useCallback(async () => {
@@ -39,8 +40,10 @@ export default function Layout() {
     return () => window.removeEventListener('notificaciones:actualizar', actualizar);
   }, [cargarNotificaciones]);
 
+  // Al cambiar de página se cierran el panel de notificaciones y el menú móvil
   useEffect(() => {
     setPanelAbierto(false);
+    setMenuAbierto(false);
   }, [ubicacion.pathname]);
 
   useEffect(() => {
@@ -83,7 +86,19 @@ export default function Layout() {
           <img src="/huella.svg" alt="" width="32" height="32" />
           <span>Adopta</span>
         </Link>
-        <nav className="menu">
+        <button
+          type="button"
+          className="menu-boton"
+          aria-expanded={menuAbierto}
+          aria-controls="menu-principal"
+          onClick={() => setMenuAbierto((prev) => !prev)}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+            {menuAbierto ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+          Menú
+        </button>
+        <nav id="menu-principal" className={`menu${menuAbierto ? ' abierto' : ''}`} aria-label="Principal">
           <NavLink to="/" end>Inicio</NavLink>
           <NavLink to="/historias">Historias</NavLink>
           {usuario ? (
@@ -170,7 +185,7 @@ export default function Layout() {
       </main>
 
       <footer className="pie">
-        <p>Adopta · Proyecto de Ingeniería en Computación e Informática</p>
+        <p>Adopta. Proyecto de Ingeniería en Computación e Informática.</p>
       </footer>
     </div>
   );

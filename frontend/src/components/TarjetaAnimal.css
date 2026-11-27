@@ -1,92 +1,128 @@
+/* Tarjeta con forma de placa de adopción: orificio perforado arriba
+   y una línea punteada que separa la foto de los datos, como la chapita de un collar. */
 .tarjeta-animal {
-  border: 1px solid var(--color-borde, #eadfd4);
-  border-radius: var(--radio, 12px);
+  position: relative;
+  border: 1px solid var(--color-borde);
+  border-radius: 18px;
   overflow: hidden;
-  background-color: var(--color-tarjeta, #ffffff);
-  box-shadow: 0 2px 6px rgba(43, 36, 32, 0.06);
+  background-color: var(--color-tarjeta);
+  box-shadow: var(--sombra);
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease;
 }
 
-.tarjeta-animal:hover {
-  transform: translateY(-4px);
+.tarjeta-animal::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--color-fondo);
+  box-shadow: inset 0 1px 2px rgba(28, 42, 40, 0.35), 0 0 0 3px rgba(255, 255, 255, 0.85);
+  z-index: 2;
 }
 
 .tarjeta-animal__imagen-contenedor {
   position: relative;
   width: 100%;
-  height: 220px;
-  background-color: #f4eee7;
+  aspect-ratio: 4 / 3;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: var(--color-primario-suave);
 }
 
 .tarjeta-animal__imagen {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .tarjeta-animal__etiqueta {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: var(--color-exito, #1f7a4d);
-  color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 4px 10px;
+  bottom: 10px;
+  left: 12px;
+  background-color: var(--color-acento);
+  color: #2b1d02;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 11px;
   border-radius: 999px;
-  text-transform: capitalize;
 }
 
 .tarjeta-animal__etiqueta--en_proceso {
-  background-color: #b45309;
+  background-color: #fff;
+  color: var(--color-texto);
 }
 
 .tarjeta-animal__etiqueta--adoptado,
-.tarjeta-animal__etiqueta--archivado {
-  background-color: var(--color-suave, #6f645c);
+.tarjeta-animal__etiqueta--archivado,
+.tarjeta-animal__etiqueta--pausado {
+  background-color: var(--color-texto);
+  color: #fff;
 }
 
 .tarjeta-animal__cuerpo {
-  padding: 16px;
+  padding: 16px 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
+  border-top: 2px dashed var(--color-borde);
 }
 
 .tarjeta-animal__titulo {
   margin: 0;
-  font-size: 1.2rem;
-  color: var(--color-texto, #2b2420);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 1.45rem;
+  font-weight: 750;
+  color: var(--color-texto);
   text-transform: capitalize;
 }
 
+.tarjeta-animal__especie {
+  font-family: var(--fuente-texto);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primario);
+  background: var(--color-primario-suave);
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
 .tarjeta-animal__meta {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--color-suave, #6f645c);
+  margin: 2px 0 0;
+  font-size: 0.95rem;
+  font-weight: 550;
+  color: var(--color-texto);
 }
 
 .tarjeta-animal__comuna {
   margin: 0;
-  font-size: 0.85rem;
-  color: var(--color-suave, #6f645c);
+  font-size: 0.88rem;
+  color: var(--color-suave);
 }
 
 .tarjeta-animal__error {
   margin: 0;
   padding: 6px 10px;
   border-radius: 8px;
-  background-color: var(--color-error-fondo, #fdecea);
-  color: var(--color-error, #b42318);
+  background-color: var(--color-error-fondo, var(--color-error-fondo));
+  color: var(--color-error, var(--color-error));
   font-size: 0.82rem;
 }
 
 .tarjeta-animal__acciones {
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: 12px;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -96,35 +132,35 @@
   flex: 1;
   min-width: 120px;
   padding: 9px 12px;
-  border: 1px solid var(--color-borde, #eadfd4);
-  border-radius: 8px;
+  border: 1px solid var(--color-borde, var(--color-borde));
+  border-radius: 999px;
   background-color: #ffffff;
-  color: var(--color-texto, #2b2420);
+  color: var(--color-texto, var(--color-texto));
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .tarjeta-animal__favorito:hover:not(:disabled) {
-  border-color: var(--color-primario, #e8743b);
-  color: var(--color-primario, #e8743b);
+  border-color: var(--color-primario, var(--color-primario));
+  color: var(--color-primario, var(--color-primario));
 }
 
 .tarjeta-animal__favorito--activo {
-  background-color: #fdecea;
+  background-color: var(--color-error-fondo);
   border-color: #f3b5ae;
-  color: var(--color-error, #b42318);
+  color: var(--color-error, var(--color-error));
 }
 
 .tarjeta-animal__favorito--activo:hover:not(:disabled) {
   background-color: #fbd8d4;
-  border-color: var(--color-error, #b42318);
-  color: var(--color-error, #b42318);
+  border-color: var(--color-error, var(--color-error));
+  color: var(--color-error, var(--color-error));
 }
 
 .tarjeta-animal__favorito:focus-visible,
 .tarjeta-animal__boton:focus-visible {
-  outline: 2px solid var(--color-primario, #e8743b);
+  outline: 2px solid var(--color-primario, var(--color-primario));
   outline-offset: 2px;
 }
 
@@ -133,15 +169,15 @@
   min-width: 110px;
   padding: 9px 12px;
   border: none;
-  border-radius: 8px;
-  background-color: var(--color-primario, #e8743b);
+  border-radius: 999px;
+  background-color: var(--color-primario, var(--color-primario));
   color: #ffffff;
   font-weight: 600;
   cursor: pointer;
 }
 
 .tarjeta-animal__boton:hover:not(:disabled) {
-  background-color: var(--color-primario-oscuro, #c85a24);
+  background-color: var(--color-primario-oscuro, var(--color-primario-oscuro));
 }
 
 .tarjeta-animal__favorito:disabled,
