@@ -17,7 +17,7 @@ export default function Panel() {
       <h1>Hola, {usuario.nombre}</h1>
       <p className="subtitulo">Entraste como {NOMBRE_ROL[usuario.rol] ?? usuario.rol}.</p>
 
-      {/* Módulo Adopción y Seguimiento (CU21–CU24) */}
+      {/* Módulo Adopción y Seguimiento (CU21–CU24, CU27) */}
       {usuario.rol === 'adoptante' && (
         <div style={{ marginTop: '2rem' }}>
           <h2>Adopciones y Solicitudes</h2>
@@ -27,6 +27,9 @@ export default function Panel() {
             </Link>
             <Link to="/solicitudes" className="boton">
               Mis solicitudes
+            </Link>
+            <Link to="/panel/visitas" className="boton">
+              Mis visitas
             </Link>
           </div>
         </div>
@@ -50,14 +53,17 @@ export default function Panel() {
         </div>
       )}
 
-      {/* Módulo Solicitudes Fundación (CU25–CU26) */}
+      {/* Módulo Solicitudes Fundación (CU25–CU27) */}
       {usuario.rol === 'fundacion' && (
         <div style={{ marginTop: '2rem' }}>
-          <h2>Solicitudes de adopción recibidas</h2>
-          <p className="subtitulo">Revisa y gestiona las postulaciones para los animales de tu fundación.</p>
+          <h2>Solicitudes y visitas</h2>
+          <p className="subtitulo">Revisa y gestiona las postulaciones y visitas para los animales de tu fundación.</p>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', flexWrap: 'wrap' }}>
             <Link to="/panel/solicitudes" className="boton">
               Ver solicitudes recibidas
+            </Link>
+            <Link to="/panel/visitas" className="boton">
+              Mis visitas
             </Link>
           </div>
         </div>
