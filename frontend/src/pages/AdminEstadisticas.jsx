@@ -72,6 +72,11 @@ export default function AdminEstadisticas() {
 
   return (
     <div className="panel-estadisticas">
+      <header className="encabezado-seccion">
+        <h1>Estadísticas de la plataforma</h1>
+        <p className="subtitulo">Usuarios, fundaciones, animales y solicitudes registrados hasta hoy.</p>
+      </header>
+
       {/* Lo más importante de la plataforma, en una frase */}
       <section className="resumen-adopciones">
         <p className="resumen-adopciones__cifra">{adopciones}</p>
