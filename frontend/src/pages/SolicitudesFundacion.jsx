@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
+import ModalAgendarVisita from '../components/ModalAgendarVisita.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 // CU25 — Revisar solicitudes recibidas
@@ -171,13 +172,14 @@ function DialogoRechazar({ solicitud, onConfirmar, onCancelar, cargando }) {
 }
 
 // ─── Tarjeta de solicitud individual ─────────────────────────────────────────
-function TarjetaSolicitud({ solicitud, onResuelta }) {
+function TarjetaSolicitud({ solicitud, onResuelta, onAgendarVisita }) {
   const { token } = useAuth();
   const [dialogo, setDialogo] = useState(null); // null | 'aprobar' | 'rechazar'
   const [cargandoAccion, setCargandoAccion] = useState(false);
   const [errorAccion, setErrorAccion] = useState('');
 
   const esPendiente = solicitud.estado === 'pendiente' || solicitud.estado === 'en_revision';
+  const puedeAgendarVisita = solicitud.estado === 'aprobada' || solicitud.estado === 'en_revision';
   const infoEstado = ESTADO_INFO[solicitud.estado] || { texto: solicitud.estado, clase: 'estado-badge--cancelada' };
 
   async function ejecutarAccion(accion, comentario) {
@@ -322,27 +324,41 @@ function TarjetaSolicitud({ solicitud, onResuelta }) {
             </p>
           )}
 
-          {/* Botones de acción (solo si está pendiente/en_revisión) */}
-          {esPendiente && (
+          {/* Botones de acción */}
+          {(esPendiente || puedeAgendarVisita) && (
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="boton"
-                style={{ background: 'var(--color-exito)' }}
-                onClick={() => setDialogo('aprobar')}
-                disabled={cargandoAccion}
-              >
-                ✓ Aprobar
-              </button>
-              <button
-                type="button"
-                className="boton"
-                style={{ background: 'var(--color-error)' }}
-                onClick={() => setDialogo('rechazar')}
-                disabled={cargandoAccion}
-              >
-                ✗ Rechazar
-              </button>
+              {esPendiente && (
+                <>
+                  <button
+                    type="button"
+                    className="boton"
+                    style={{ background: 'var(--color-exito)' }}
+                    onClick={() => setDialogo('aprobar')}
+                    disabled={cargandoAccion}
+                  >
+                    ✓ Aprobar
+                  </button>
+                  <button
+                    type="button"
+                    className="boton"
+                    style={{ background: 'var(--color-error)' }}
+                    onClick={() => setDialogo('rechazar')}
+                    disabled={cargandoAccion}
+                  >
+                    ✗ Rechazar
+                  </button>
+                </>
+              )}
+              {puedeAgendarVisita && (
+                <button
+                  type="button"
+                  className="boton"
+                  onClick={() => onAgendarVisita(solicitud)}
+                  disabled={cargandoAccion}
+                >
+                  Agendar visita
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -358,7 +374,9 @@ export default function SolicitudesFundacion() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
   const [filtro, setFiltro] = useState('todas');
+  const [solicitudVisita, setSolicitudVisita] = useState(null);
 
   const cargarSolicitudes = useCallback(async () => {
     setCargando(true);
@@ -392,10 +410,21 @@ export default function SolicitudesFundacion() {
             Revisa y gestiona las postulaciones de adopción para los animales de tu fundación.
           </p>
         </div>
-        <Link to="/panel" className="boton" style={{ background: 'var(--color-suave)' }}>
-          ← Panel
-        </Link>
+        <div className="acciones" style={{ marginTop: 0 }}>
+          <Link to="/panel/visitas" className="boton boton-secundario">
+            Mis visitas
+          </Link>
+          <Link to="/panel" className="boton" style={{ background: 'var(--color-suave)' }}>
+            ← Panel
+          </Link>
+        </div>
       </div>
+
+      {aviso && (
+        <p className="alerta-info" role="status" style={{ marginBottom: '1rem' }}>
+          {aviso}
+        </p>
+      )}
 
       {/* Filtros por estado */}
       <div
@@ -470,9 +499,25 @@ export default function SolicitudesFundacion() {
               key={solicitud.solicitud_id}
               solicitud={solicitud}
               onResuelta={cargarSolicitudes}
+              onAgendarVisita={(sol) => {
+                setAviso('');
+                setSolicitudVisita(sol);
+              }}
             />
           ))}
         </div>
+      )}
+
+      {solicitudVisita && (
+        <ModalAgendarVisita
+          solicitud={solicitudVisita}
+          onCerrar={() => setSolicitudVisita(null)}
+          onAgendada={() => {
+            const nombre = solicitudVisita.animal_nombre;
+            setSolicitudVisita(null);
+            setAviso(`Visita agendada correctamente para ${nombre}. Puedes verla en "Mis visitas".`);
+          }}
+        />
       )}
     </section>
   );

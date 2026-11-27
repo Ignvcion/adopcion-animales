@@ -21,6 +21,9 @@ import FichaAnimal from './pages/FichaAnimal.jsx';
 import PerfilFundacion from './pages/PerfilFundacion.jsx';
 import MisPublicaciones from './pages/MisPublicaciones.jsx';
 import FormularioAnimal from './pages/FormularioAnimal.jsx';
+import Visitas from './pages/Visitas.jsx';
+import Notificaciones from './pages/Notificaciones.jsx';
+import HistoriasExito from './pages/HistoriasExito.jsx';
 
 export default function App() {
   return (
@@ -28,6 +31,7 @@ export default function App() {
       <Route element={<Layout />}>
         {/* Públicas */}
         <Route path="/" element={<Inicio />} />
+        <Route path="/historias" element={<HistoriasExito />} />
         <Route path="/animales/:id" element={<FichaAnimal />} />
         <Route path="/fundaciones/:id" element={<PerfilFundacion />} />
         <Route path="/login" element={<Login />} />
@@ -39,6 +43,12 @@ export default function App() {
         <Route element={<RutaProtegida />}>
           <Route path="/panel" element={<Panel />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/panel/notificaciones" element={<Notificaciones />} />
+        </Route>
+
+        {/* Visitas (adoptantes y fundaciones) */}
+        <Route element={<RutaProtegida roles={['adoptante', 'fundacion']} />}>
+          <Route path="/panel/visitas" element={<Visitas />} />
         </Route>
 
         {/* Exclusivas para adoptantes */}

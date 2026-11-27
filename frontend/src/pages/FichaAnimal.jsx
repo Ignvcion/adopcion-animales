@@ -16,6 +16,14 @@ const ETIQUETA_EDAD = {
   senior: 'Senior',
 };
 
+const MOTIVOS_REPORTE = [
+  { valor: 'informacion_falsa', etiqueta: 'Información falsa o engañosa' },
+  { valor: 'maltrato', etiqueta: 'Posible maltrato animal' },
+  { valor: 'cobro_indebido', etiqueta: 'Cobro indebido por adopción' },
+  { valor: 'contenido_inapropiado', etiqueta: 'Contenido inapropiado' },
+  { valor: 'otro', etiqueta: 'Otro motivo' },
+];
+
 // CU17 — Ver ficha completa del animal
 export default function FichaAnimal() {
   const { id } = useParams();
@@ -30,6 +38,14 @@ export default function FichaAnimal() {
   const [errorFav, setErrorFav] = useState('');
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+
+  // CU29 — Reportar publicación sospechosa
+  const [modalReporte, setModalReporte] = useState(false);
+  const [motivoReporte, setMotivoReporte] = useState('informacion_falsa');
+  const [descripcionReporte, setDescripcionReporte] = useState('');
+  const [enviandoReporte, setEnviandoReporte] = useState(false);
+  const [errorReporte, setErrorReporte] = useState('');
+  const [avisoReporte, setAvisoReporte] = useState('');
 
   useEffect(() => {
     let activo = true;
@@ -125,6 +141,38 @@ export default function FichaAnimal() {
     }
 
     navegar('/solicitar', { state: { animal } });
+  }
+
+  async function manejarEnviarReporte(e) {
+    e.preventDefault();
+    if (!animal) return;
+    setErrorReporte('');
+
+    const limpia = descripcionReporte.trim();
+    if (limpia.length < 10) {
+      setErrorReporte('Describe el motivo del reporte en al menos 10 caracteres.');
+      return;
+    }
+
+    setEnviandoReporte(true);
+    try {
+      const resp = await pedir('/reportes', {
+        metodo: 'POST',
+        token,
+        cuerpo: {
+          animal_id: animal.animal_id,
+          motivo: motivoReporte,
+          descripcion: limpia,
+        },
+      });
+      setModalReporte(false);
+      setDescripcionReporte('');
+      setAvisoReporte(resp.mensaje || 'Reporte enviado correctamente.');
+    } catch (err) {
+      setErrorReporte(err.message || 'No se pudo enviar el reporte.');
+    } finally {
+      setEnviandoReporte(false);
+    }
   }
 
   if (cargando) {
@@ -328,8 +376,14 @@ export default function FichaAnimal() {
             </p>
           )}
 
+          {avisoReporte && (
+            <p className="alerta-info" role="status" style={{ marginTop: '0.75rem' }}>
+              {avisoReporte}
+            </p>
+          )}
+
           {puedeInteractuarAdoptante && (
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
               <button
                 type="button"
                 className="boton"
@@ -348,10 +402,91 @@ export default function FichaAnimal() {
               >
                 {esFavorito ? '♥ En favoritos' : '♡ Guardar en favoritos'}
               </button>
+
+              {usuario?.rol === 'adoptante' && (
+                <button
+                  type="button"
+                  className="boton-texto"
+                  style={{ marginLeft: 'auto', fontSize: '0.88rem' }}
+                  onClick={() => {
+                    setErrorReporte('');
+                    setModalReporte(true);
+                  }}
+                >
+                  ⚑ Reportar publicación
+                </button>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {modalReporte && (
+        <div
+          className="modal-fondo"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-reporte-titulo"
+        >
+          <div className="tarjeta modal" style={{ maxWidth: 460 }}>
+            <h2 id="modal-reporte-titulo" style={{ marginTop: 0 }}>
+              Reportar publicación de {animal.nombre}
+            </h2>
+            <p className="subtitulo" style={{ marginBottom: '1rem' }}>
+              Si detectaste información engañosa o irregularidades, cuéntanos para revisarlo.
+            </p>
+
+            <form onSubmit={manejarEnviarReporte} className="formulario" style={{ margin: 0, maxWidth: '100%' }}>
+              <label htmlFor="reporte-motivo">Motivo del reporte</label>
+              <select
+                id="reporte-motivo"
+                value={motivoReporte}
+                onChange={(e) => setMotivoReporte(e.target.value)}
+                disabled={enviandoReporte}
+                style={{ width: '100%', padding: '0.65rem 0.8rem', border: '1px solid var(--color-borde)', borderRadius: '10px', background: '#fff' }}
+              >
+                {MOTIVOS_REPORTE.map((m) => (
+                  <option key={m.valor} value={m.valor}>
+                    {m.etiqueta}
+                  </option>
+                ))}
+              </select>
+
+              <label htmlFor="reporte-descripcion">Descripción</label>
+              <textarea
+                id="reporte-descripcion"
+                rows={4}
+                maxLength={2000}
+                placeholder="Explica brevemente qué observaste en esta publicación…"
+                value={descripcionReporte}
+                onChange={(e) => setDescripcionReporte(e.target.value)}
+                disabled={enviandoReporte}
+                required
+              />
+
+              {errorReporte && (
+                <p className="alerta-error" role="alert">
+                  {errorReporte}
+                </p>
+              )}
+
+              <div className="acciones" style={{ marginTop: '1.25rem' }}>
+                <button type="submit" className="boton boton-peligro" disabled={enviandoReporte}>
+                  {enviandoReporte ? 'Enviando…' : 'Enviar reporte'}
+                </button>
+                <button
+                  type="button"
+                  className="boton boton-secundario"
+                  onClick={() => setModalReporte(false)}
+                  disabled={enviandoReporte}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

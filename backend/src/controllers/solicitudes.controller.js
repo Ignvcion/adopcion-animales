@@ -381,22 +381,47 @@ async function resolverSolicitud(req, res, next) {
     );
 
     if (accion === 'aprobar') {
-      // Al aprobar: marcar el animal como 'en_proceso' y rechazar automáticamente
-      // las demás solicitudes pendientes/en_revision del mismo animal
+      // Al aprobar: marcar el animal como 'en_proceso', rechazar automáticamente
+      // las demás solicitudes pendientes/en_revision del mismo animal y notificarlas
       await conexion.execute(
         `UPDATE animal SET estado = 'en_proceso' WHERE animal_id = ?`,
         [solicitud.animal_id]
       );
 
-      await conexion.execute(
-        `UPDATE solicitud
-            SET estado = 'rechazada',
-                comentario_fundacion = 'El animal ya tiene una solicitud aprobada.'
+      const [otrasPendientes] = await conexion.execute(
+        `SELECT solicitud_id, usuario_id
+           FROM solicitud
           WHERE animal_id = ?
             AND solicitud_id <> ?
             AND estado IN ('pendiente', 'en_revision')`,
         [solicitud.animal_id, solicitudId]
       );
+
+      if (otrasPendientes.length > 0) {
+        await conexion.execute(
+          `UPDATE solicitud
+              SET estado = 'rechazada',
+                  comentario_fundacion = 'El animal ya tiene una solicitud aprobada.'
+            WHERE animal_id = ?
+              AND solicitud_id <> ?
+              AND estado IN ('pendiente', 'en_revision')`,
+          [solicitud.animal_id, solicitudId]
+        );
+
+        for (const otra of otrasPendientes) {
+          await conexion.execute(
+            `INSERT INTO notificacion (usuario_id, animal_id, solicitud_id, tipo, titulo, mensaje)
+             VALUES (?, ?, ?, 'solicitud', ?, ?)`,
+            [
+              otra.usuario_id,
+              solicitud.animal_id,
+              otra.solicitud_id,
+              `Tu solicitud para ${solicitud.animal_nombre} fue cerrada`,
+              `La fundación aprobó otra postulación para ${solicitud.animal_nombre}, por lo que tu solicitud fue rechazada automáticamente.`,
+            ]
+          );
+        }
+      }
     }
 
     // Registrar notificación para el adoptante (tabla notificacion existe en schema.sql)

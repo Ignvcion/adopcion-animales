@@ -25,6 +25,10 @@ app.use('/api/animales', require('./routes/animales.routes'));
 app.use('/api/fundaciones', require('./routes/fundaciones.routes'));
 app.use('/api/favoritos', require('./routes/favoritos.routes'));
 app.use('/api/solicitudes', require('./routes/solicitudes.routes'));
+app.use('/api/visitas', require('./routes/visitas.routes'));
+app.use('/api/notificaciones', require('./routes/notificaciones.routes'));
+app.use('/api/reportes', require('./routes/reportes.routes'));
+app.use('/api/historias', require('./routes/historias.routes'));
 
 // Ruta inexistente
 app.use('/api', (req, res) => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
+import ModalAgendarVisita from '../components/ModalAgendarVisita.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const ESTADO_INFO = {
@@ -30,6 +31,8 @@ export default function MisSolicitudes() {
   const [solicitudes, setSolicitudes] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
+  const [solicitudVisita, setSolicitudVisita] = useState(null);
 
   const cargarSolicitudes = useCallback(async () => {
     setCargando(true);
@@ -57,10 +60,21 @@ export default function MisSolicitudes() {
             Revisa el estado y seguimiento de todas las postulaciones que has enviado.
           </p>
         </div>
-        <Link to="/favoritos" className="boton-secundario">
-          Ir a mis favoritos
-        </Link>
+        <div className="acciones" style={{ marginTop: 0 }}>
+          <Link to="/panel/visitas" className="boton boton-secundario">
+            Mis visitas
+          </Link>
+          <Link to="/favoritos" className="boton-secundario boton">
+            Ir a mis favoritos
+          </Link>
+        </div>
       </div>
+
+      {aviso && (
+        <p className="alerta-info" role="status" style={{ marginBottom: '1rem' }}>
+          {aviso}
+        </p>
+      )}
 
       {cargando && <p className="cargando">Cargando tus solicitudes…</p>}
 
@@ -145,11 +159,38 @@ export default function MisSolicitudes() {
                       <strong>Respuesta de la fundación:</strong> {solicitud.comentario_fundacion}
                     </p>
                   )}
+
+                  {(solicitud.estado === 'aprobada' || solicitud.estado === 'en_revision') && (
+                    <div className="acciones" style={{ marginTop: '1rem' }}>
+                      <button
+                        type="button"
+                        className="boton boton-chico-tabla"
+                        onClick={() => {
+                          setAviso('');
+                          setSolicitudVisita(solicitud);
+                        }}
+                      >
+                        Agendar visita
+                      </button>
+                    </div>
+                  )}
                 </div>
               </article>
             );
           })}
         </div>
+      )}
+
+      {solicitudVisita && (
+        <ModalAgendarVisita
+          solicitud={solicitudVisita}
+          onCerrar={() => setSolicitudVisita(null)}
+          onAgendada={() => {
+            const nombre = solicitudVisita.animal_nombre;
+            setSolicitudVisita(null);
+            setAviso(`Visita propuesta correctamente para ${nombre}. Puedes revisarla en "Mis visitas".`);
+          }}
+        />
       )}
     </section>
   );
