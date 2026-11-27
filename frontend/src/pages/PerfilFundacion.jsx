@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { pedir } from '../api/cliente.js';
+import { textoEspecie, textoTamano } from '../utils/etiquetas.js';
+
+const IMAGEN_PLACEHOLDER = '/sin-foto-animal.svg';
 
 // CU20 — Ver perfil público de una fundación (actor: todos)
 export default function PerfilFundacion() {
@@ -49,7 +52,7 @@ export default function PerfilFundacion() {
         <p className="subtitulo">
           La fundación solicitada no existe o aún no está aprobada en la plataforma.
         </p>
-        <Link to="/" className="boton" style={{ marginTop: '1rem' }}>
+        <Link to="/" className="boton boton-espaciado-superior">
           Volver al catálogo
         </Link>
       </section>
@@ -58,21 +61,17 @@ export default function PerfilFundacion() {
 
   return (
     <section>
-      <div style={{ marginBottom: '1rem' }}>
-        <Link to="/" className="boton-texto">
-          ← Volver al catálogo
-        </Link>
-      </div>
+      <Link to="/" className="boton-texto enlace-volver">
+        ← Volver al catálogo
+      </Link>
 
-      <article className="tarjeta" style={{ marginBottom: '2rem' }}>
-        <div className="encabezado-seccion" style={{ marginBottom: '0.75rem' }}>
+      <article className="tarjeta fundacion-cabecera">
+        <div className="encabezado-seccion fundacion-cabecera-top">
           <div>
             <h1>{fundacion.nombre}</h1>
-            <p className="subtitulo" style={{ marginBottom: 0 }}>
-              {fundacion.comuna}
-            </p>
+            <p className="subtitulo fundacion-subtitulo">{fundacion.comuna}</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <div className="fundacion-badges">
             <span className="estado-badge estado-badge--aprobada">Fundación verificada</span>
             <span className="estado-badge estado-badge--en_revision">
               {animales.length} {animales.length === 1 ? 'disponible' : 'disponibles'}
@@ -87,7 +86,7 @@ export default function PerfilFundacion() {
         </div>
 
         {fundacion.descripcion && (
-          <p style={{ margin: '0.75rem 0 1rem' }}>{fundacion.descripcion}</p>
+          <p className="fundacion-descripcion">{fundacion.descripcion}</p>
         )}
 
         <dl className="datos-perfil">
@@ -110,53 +109,37 @@ export default function PerfilFundacion() {
       {animales.length === 0 ? (
         <p className="vacio">Esta fundación no tiene animales disponibles por el momento.</p>
       ) : (
-        <div className="rejilla-animales" style={{ marginTop: '1rem' }}>
-          {animales.map((animal) => (
-            <article
-              key={animal.animal_id}
-              className="tarjeta"
-              style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
-            >
-              {animal.foto_url ? (
+        <div className="rejilla-animales fundacion-animales-grid">
+          {animales.map((animal) => {
+            const tieneFoto = Boolean(animal.foto_url);
+            return (
+              <article key={animal.animal_id} className="tarjeta fundacion-animal-tarjeta">
                 <img
-                  src={animal.foto_url}
-                  alt={animal.nombre}
-                  style={{ width: '100%', height: '190px', objectFit: 'cover', borderRadius: '8px' }}
+                  src={tieneFoto ? animal.foto_url : IMAGEN_PLACEHOLDER}
+                  alt={tieneFoto ? animal.nombre : `${animal.nombre} sin fotografía`}
+                  className={`fundacion-animal-img ${
+                    tieneFoto ? '' : 'fundacion-animal-img--placeholder'
+                  }`}
                 />
-              ) : (
-                <div
-                  style={{
-                    width: '100%',
-                    height: '190px',
-                    borderRadius: '8px',
-                    background: 'var(--color-fondo-suave)',
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: 'var(--color-suave)',
-                  }}
+
+                <h3 className="fundacion-animal-titulo">{animal.nombre}</h3>
+                <p className="subtitulo fundacion-animal-subtitulo">
+                  {textoEspecie(animal.especie)}
+                  {animal.raza ? ` · ${animal.raza}` : ''} · {animal.edad_aprox}
+                </p>
+                <p className="fundacion-animal-meta">
+                  {textoTamano(animal.tamano)} · {animal.comuna}
+                </p>
+
+                <Link
+                  to={`/animales/${animal.animal_id}`}
+                  className="boton fundacion-animal-boton"
                 >
-                  Sin foto
-                </div>
-              )}
-
-              <h3 style={{ margin: '0.25rem 0 0' }}>{animal.nombre}</h3>
-              <p className="subtitulo" style={{ margin: 0, textTransform: 'capitalize' }}>
-                {animal.especie}
-                {animal.raza ? ` · ${animal.raza}` : ''} · {animal.edad_aprox}
-              </p>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-suave)' }}>
-                {animal.tamano === 'pequeno' ? 'Pequeño' : animal.tamano} · {animal.comuna}
-              </p>
-
-              <Link
-                to={`/animales/${animal.animal_id}`}
-                className="boton"
-                style={{ marginTop: 'auto', textAlign: 'center' }}
-              >
-                Ver ficha
-              </Link>
-            </article>
-          ))}
+                  Ver ficha
+                </Link>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

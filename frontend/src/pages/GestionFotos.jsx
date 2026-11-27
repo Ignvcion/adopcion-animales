@@ -157,8 +157,8 @@ export default function GestionFotos() {
         <p>No tienes animales publicados aún.</p>
       ) : (
         <>
-          <div style={{ marginTop: '1.25rem', maxWidth: '420px' }}>
-            <label htmlFor="selector-animal" style={{ display: 'block', fontWeight: 600, marginBottom: '0.4rem' }}>
+          <div className="fotos-selector-grupo">
+            <label htmlFor="selector-animal" className="fotos-selector-label">
               Selecciona un animal de tu fundación
             </label>
             <select
@@ -169,7 +169,7 @@ export default function GestionFotos() {
                 setMensaje('');
                 setError('');
               }}
-              style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid var(--color-borde)', background: '#fff' }}
+              className="campo-select"
             >
               {animales.map((a) => (
                 <option key={a.animal_id} value={a.animal_id}>
@@ -179,16 +179,12 @@ export default function GestionFotos() {
             </select>
           </div>
 
-          <form
-            onSubmit={manejarAgregarFoto}
-            className="tarjeta"
-            style={{ marginTop: '1.5rem', maxWidth: '540px' }}
-          >
-            <h2 style={{ fontSize: '1.1rem', marginTop: 0, marginBottom: '0.75rem' }}>
+          <form onSubmit={manejarAgregarFoto} className="tarjeta fotos-formulario">
+            <h2 className="fotos-formulario-titulo">
               Agregar nueva foto ({fotos.length}/5)
             </h2>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <div className="fotos-formulario-campos">
               <input
                 type="text"
                 placeholder="URL de la imagen (ej: /animales/foto.jpg o https://...)"
@@ -196,10 +192,10 @@ export default function GestionFotos() {
                 onChange={(e) => setNuevaUrl(e.target.value)}
                 disabled={procesando || fotos.length >= 5}
                 required
-                style={{ padding: '0.55rem', borderRadius: '6px', border: '1px solid var(--color-borde)' }}
+                className="campo-texto"
               />
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+              <label className="fotos-checkbox-label">
                 <input
                   type="checkbox"
                   checked={marcarPrincipal}
@@ -211,9 +207,8 @@ export default function GestionFotos() {
 
               <button
                 type="submit"
-                className="boton"
+                className="boton fotos-btn-enviar"
                 disabled={procesando || fotos.length >= 5}
-                style={{ alignSelf: 'flex-start' }}
               >
                 {procesando ? 'Guardando…' : 'Agregar foto'}
               </button>
@@ -231,45 +226,27 @@ export default function GestionFotos() {
             </p>
           )}
 
-          <div style={{ marginTop: '1.75rem' }}>
+          <div className="fotos-seccion-actuales">
             <h2>Fotos actuales ({fotos.length})</h2>
             {fotos.length === 0 ? (
               <p>Este animal aún no tiene fotos cargadas.</p>
             ) : (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-                  gap: '1rem',
-                  marginTop: '1rem',
-                }}
-              >
+              <div className="fotos-grid">
                 {fotos.map((foto, idx) => (
-                  <article
-                    key={foto.foto_animal_id}
-                    className="tarjeta"
-                    style={{
-                      padding: '0.75rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.5rem',
-                    }}
-                  >
+                  <article key={foto.foto_animal_id} className="tarjeta fotos-tarjeta">
                     <img
                       src={foto.url}
                       alt={`Foto ${idx + 1}`}
-                      style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '6px' }}
+                      className="fotos-tarjeta-img"
                     />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="fotos-tarjeta-meta">
                       <strong>#{idx + 1}</strong>
                       {foto.es_principal ? (
-                        <span className="estado-badge estado-badge--aprobada">
-                          Principal
-                        </span>
+                        <span className="estado-badge estado-badge--aprobada">Principal</span>
                       ) : null}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.4rem', marginTop: 'auto' }}>
+                    <div className="fotos-tarjeta-acciones">
                       <button
                         type="button"
                         className="boton boton-chico-tabla"
@@ -290,10 +267,9 @@ export default function GestionFotos() {
                       </button>
                       <button
                         type="button"
-                        className="boton-texto"
+                        className="boton-texto fotos-btn-eliminar"
                         onClick={() => manejarEliminarFoto(foto.foto_animal_id)}
                         disabled={procesando}
-                        style={{ marginLeft: 'auto', color: 'var(--color-error)' }}
                       >
                         Eliminar
                       </button>
