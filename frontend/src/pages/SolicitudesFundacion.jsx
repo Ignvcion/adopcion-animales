@@ -432,14 +432,23 @@ export default function SolicitudesFundacion() {
         <div className="tarjeta estado-vacio">
           <h2 className="estado-vacio__titulo">
             {filtro === 'todas'
-              ? 'Aún no has recibido solicitudes'
+              ? 'Sin solicitudes recibidas'
               : `Sin solicitudes ${FILTROS.find((f) => f.valor === filtro)?.etiqueta.toLowerCase()}`}
           </h2>
           <p className="estado-vacio__texto">
             {filtro === 'todas'
-              ? 'Cuando alguien postule a uno de tus animales, aparecerá aquí.'
+              ? 'Aún no has recibido solicitudes de adopción para tus publicaciones.'
               : 'Prueba cambiando el filtro para ver otras solicitudes.'}
           </p>
+          {filtro !== 'todas' && (
+            <button
+              type="button"
+              className="boton boton-secundario"
+              onClick={() => setFiltro('todas')}
+            >
+              Ver todas las solicitudes
+            </button>
+          )}
         </div>
       )}
 

@@ -213,16 +213,35 @@ export default function Visitas() {
         <p className="cargando">Cargando visitas…</p>
       ) : visitas.length === 0 ? (
         <div className="tarjeta estado-vacio">
-          <h2 className="estado-vacio__titulo">No hay visitas registradas</h2>
+          <h2 className="estado-vacio__titulo">
+            {filtro === 'todas'
+              ? 'Aún no tienes visitas agendadas'
+              : `Sin visitas ${FILTROS.find((f) => f.valor === filtro)?.etiqueta.toLowerCase()}`}
+          </h2>
           <p className="estado-vacio__texto">
-            Puedes agendar una visita desde una solicitud aprobada o en revisión.
+            {filtro === 'todas'
+              ? 'Aún no tienes visitas agendadas. Cuando una solicitud sea aprobada o esté en revisión, podrás coordinar una visita desde tus solicitudes.'
+              : 'No hay visitas con el estado seleccionado. Prueba cambiando el filtro para ver otras visitas.'}
           </p>
-          <Link
-            to={esFundacion ? '/panel/solicitudes' : '/solicitudes'}
-            className="boton"
-          >
-            {esFundacion ? 'Ver solicitudes recibidas' : 'Ver mis solicitudes'}
-          </Link>
+          {filtro === 'todas' ? (
+            <Link
+              to={esFundacion ? '/panel/solicitudes' : '/solicitudes'}
+              className="boton"
+            >
+              {esFundacion ? 'Ver solicitudes recibidas' : 'Ver mis solicitudes'}
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="boton boton-secundario"
+              onClick={() => {
+                setFiltro('todas');
+                setAviso('');
+              }}
+            >
+              Ver todas las visitas
+            </button>
+          )}
         </div>
       ) : (
         <div className="solicitudes-lista">
